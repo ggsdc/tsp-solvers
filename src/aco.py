@@ -68,8 +68,8 @@ class ACO:
     def _add_pheromone(self, solution, cost, weight=1):
         pheromone_to_add = self.pheromone_deposit / cost
         for i in range(self.number_vertices):
-            self.graph.edges[(solution[i], solution[(i+1) % self.number_vertices])].pheromone = \
-                self.graph.edges[(solution[i], solution[(i+1) % self.number_vertices])].pheromone * self.rho +\
+            self.graph.edges[(solution[i], solution[(i + 1) % self.number_vertices])].pheromone = \
+                self.graph.edges[(solution[i], solution[(i + 1) % self.number_vertices])].pheromone * self.rho + \
                 weight * pheromone_to_add
 
     def get_best(self):
@@ -77,9 +77,8 @@ class ACO:
         for ant in self.ants:
             if ant.cost < best.cost:
                 best = ant
-
-        print('BEST SOLUTION: ', str(best.solution), ". Cost: ", str(best.cost))
-
+        print('\nACO:')
+        print('Best solution: ', str(best.solution), "\t|\tcost: ", str(best.cost))
 
     def _acs(self):
         frac = 0.1

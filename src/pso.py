@@ -39,8 +39,8 @@ class PSO:
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-
-        print('BEST SOLUTION: ', str(best.solution), ". Cost: ", str(best.cost))
+        print("\nPSO:")
+        print('Best solution: ', str(best.solution), "\t|\tcost: ", str(best.cost))
 
     def show(self):
         print("\nSOLUTION:")

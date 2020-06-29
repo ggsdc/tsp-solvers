@@ -7,11 +7,11 @@ class Individual:
     The genes are the solution (path)
     """
 
-    def __init__(self, genes, cost, id):
+    def __init__(self, genes, cost, idx):
         self.genes = genes
         self.cost = cost
         self.number_vertices = len(genes)
-        self.id = id
+        self.id = idx
 
     def swap(self, gene_1, gene_2):
         a = self.genes.index(gene_1)
@@ -86,8 +86,8 @@ class GA:
         for individual in self.individuals:
             if individual.cost < best.cost:
                 best = individual
-
-        print('BEST SOLUTION: ', str(best.genes), ". Cost: ", str(best.cost))
+        print("\nGA:")
+        print('Best solution: ', str(best.genes), "\t|\tcost: ", str(best.cost))
 
     def best_insertion(self, child, sub_solution):
         start = sub_solution[0]
