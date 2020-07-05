@@ -33,7 +33,7 @@ class LP:
             self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost for edge in self.graph.edges)
 
     def run(self):
-        self.model.solve(PULP_CBC_CMD(msg=1, maxSeconds=self.max_time))
+        self.model.solve(GUROBI_CMD(msg=1, options=[('TimeLimit', self.max_time), ('MIPGap', 0.05), ('MIPGapAbs', 0.05)]))
 
         print(self.model.status)
         if self.model.status == 1:
@@ -55,7 +55,6 @@ class LP:
                     array = self.temp_solution[i].split(",")
                     if array[0][1:] == str(self.solution[-1]):
                         self.solution.append(int(array[1][:-1]))
-                        print(self.solution)
                         del self.temp_solution[i]
                         break
 
