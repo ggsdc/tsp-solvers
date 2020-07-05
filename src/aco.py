@@ -1,6 +1,6 @@
-import random
-
+import datetime
 import math
+import random
 
 
 class Ant:
@@ -43,7 +43,8 @@ class Ant:
 
 class ACO:
     def __init__(self, mode='ACS', graph=None, iterations=100, population_size=10, elitist_weight=1,
-                 min_scaling_factor=0.001, alpha=1, beta=3, rho=0.1, pheromone_deposit=1, initial_pheromone=1):
+                 min_scaling_factor=0.001, alpha=1, beta=3, rho=0.1, pheromone_deposit=1, initial_pheromone=1,
+                 max_time=60):
         self.mode = mode
         self.graph = graph
         self.iterations = iterations
@@ -56,6 +57,7 @@ class ACO:
         self.pheromone_deposit = pheromone_deposit
         self.initial_pheromone = initial_pheromone
         self.number_vertices = self.graph.number_vertices
+        self.max_time = max_time
 
         for edge in self.graph.edges:
             self.graph.update_pheromone(edge, initial_pheromone)
@@ -82,6 +84,7 @@ class ACO:
 
     def _acs(self):
         frac = 0.1
+        initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
             if i / self.iterations >= frac:
                 print(str(frac * 100) + '% iterations complete')
@@ -91,6 +94,9 @@ class ACO:
                 if ant.cost < self.best_cost:
                     self.best_solution = ant.solution
                     self.best_cost = ant.cost
+
+            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+                break
 
     def run(self):
         if self.mode == 'ACS':
@@ -103,3 +109,14 @@ class ACO:
         print("Ants: " + str(self.population_size) + ". Iterations: " + str(self.iterations) + "\n")
         for ant in self.ants:
             print('Best solution: %s\t|\tcost: %d' % (str(ant.solution), ant.cost))
+
+    def save(self, file):
+        best = self.ants[0]
+        for ant in self.ants:
+            if ant.cost < best.cost:
+                best = ant
+        text = 'ACO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) +'\n'
+        with open(file, "a") as myfile:
+            myfile.write(text)
+
+

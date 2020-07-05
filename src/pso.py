@@ -1,5 +1,6 @@
 import random
 import copy
+import datetime
 
 
 class Particle:
@@ -17,7 +18,7 @@ class Particle:
 
 
 class PSO:
-    def __init__(self, graph, iterations, size_population, alpha=1, beta=1):
+    def __init__(self, graph, iterations, size_population, alpha=1, beta=1, max_time=60):
         self.graph = graph
         self.iterations = iterations
         self.size_population = size_population
@@ -25,6 +26,7 @@ class PSO:
         self.beta = beta
         self.particles = list()
         self.best = None
+        self.max_time = max_time
 
         solutions = self.graph.get_random_path(self.size_population)
 
@@ -51,6 +53,7 @@ class PSO:
     def run(self):
 
         frac = 0.1
+        initial_time= datetime.datetime.utcnow()
 
         for i in range(self.iterations):
             if i / self.iterations >= frac:
@@ -102,3 +105,15 @@ class PSO:
                 if current_cost < particle.best_cost:
                     particle.best_cost = current_cost
                     particle.best_solution = solution_particle
+
+            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+                break
+
+    def save(self, file):
+        best = self.particles[0]
+        for particle in self.particles:
+            if particle.cost < best.cost:
+                best = particle
+        text = 'PSO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) +'\n'
+        with open(file, "a") as myfile:
+            myfile.write(text)

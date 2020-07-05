@@ -1,4 +1,5 @@
 import copy
+import datetime
 import random
 
 
@@ -65,7 +66,7 @@ class Individual:
 
 class GA:
 
-    def __init__(self, graph, max_generations, population_size, mutation_probability):
+    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time):
         self.individuals = list()
         self.graph = graph
         self.max_generations = max_generations
@@ -74,10 +75,11 @@ class GA:
         self.mating_pool = []
         self.children = []
         self.id = 1
+        self.max_time = max_time
 
         solutions = self.graph.get_random_path(self.population_size)
         for solution in solutions:
-            individual = Individual(genes=solution, cost=self.graph.get_cost(solution), id=self.id)
+            individual = Individual(genes=solution, cost=self.graph.get_cost(solution), idx=self.id)
             self.id += 1
             self.individuals.append(individual)
 
@@ -161,6 +163,7 @@ class GA:
 
     def run(self):
         frac = 0.1
+        initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
             if i / self.max_generations >= frac:
                 print(str(frac*100) + '% iterations complete')
@@ -171,6 +174,8 @@ class GA:
             self.mutation()
             self.substitution()
             # self.get_best()
+            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+                break
 
         # print('FINISHED')
     def show(self):
@@ -178,3 +183,12 @@ class GA:
         print("Individuals: " + str(self.population_size) + ". Iterations: " + str(self.max_generations))
         for ind in self.individuals:
             print('Best solution: %s\t|\tcost: %d' % (str(ind.genes), ind.cost))
+
+    def save(self, file):
+        best = self.individuals[0]
+        for individual in self.individuals:
+            if individual.cost < best.cost:
+                best = individual
+        text = 'GA. Best solution: ' + str(best.genes) + "\t|\tCost: " + str(best.cost) + '\n'
+        with open(file, "a") as myfile:
+            myfile.write(text)

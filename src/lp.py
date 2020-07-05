@@ -33,36 +33,47 @@ class LP:
             self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost for edge in self.graph.edges)
 
     def run(self):
-        self.model.solve(PULP_CBC_CMD(msg=0, maxSeconds=self.max_time))
+        self.model.solve(PULP_CBC_CMD(msg=1, maxSeconds=self.max_time))
 
-    def show(self):
-        self.solution = list()
-        self.temp_solution = list()
-        for v in self.model.variables():
-            if v.varValue > 0 and "Travel" in v.name:
-                aux = v.name[7:]
-                aux = aux.replace("_", "", 1)
-                self.temp_solution.append(aux)
+        print(self.model.status)
+        if self.model.status == 1:
+            self.solution = list()
+            self.temp_solution = list()
+            for v in self.model.variables():
+                if v.varValue > 0 and "Travel" in v.name:
+                    aux = v.name[7:]
+                    aux = aux.replace("_", "", 1)
+                    self.temp_solution.append(aux)
 
-        array = self.temp_solution[0].split(",")
-        self.solution.append(int(array[0][1:]))
-        self.solution.append(int(array[1][:-1]))
+            array = self.temp_solution[0].split(",")
+            self.solution.append(int(array[0][1:]))
+            self.solution.append(int(array[1][:-1]))
 
-        del self.temp_solution[0]
-        while True:
-            for i in range(len(self.temp_solution)):
-                array = self.temp_solution[i].split(",")
-                if array[0][1:] == str(self.solution[-1]):
-                    self.solution.append(int(array[1][:-1]))
-                    del self.temp_solution[i]
+            del self.temp_solution[0]
+            while True:
+                for i in range(len(self.temp_solution)):
+                    array = self.temp_solution[i].split(",")
+                    if array[0][1:] == str(self.solution[-1]):
+                        self.solution.append(int(array[1][:-1]))
+                        print(self.solution)
+                        del self.temp_solution[i]
+                        break
+
+                if len(self.temp_solution) == 0:
                     break
 
-            if len(self.temp_solution) == 0:
-                break
+            del self.solution[-1]
 
-        del self.solution[-1]
+            self.cost = self.graph.get_cost(self.solution)
 
-        self.cost = self.graph.get_cost(self.solution)
-        print(self.model)
+        else:
+            self.cost = float("-inf")
+
+    def show(self):
         print("\nLinear programming formulation:")
         print("Best solution: " + str(self.solution) + "\t|\tcost: " + str(self.cost))
+
+    def save(self, file):
+        text = 'LP. Best solution: ' + str(self.solution) + "\t|\tCost: " + str(self.cost) + '\n'
+        with open(file, "a") as myfile:
+            myfile.write(text)
