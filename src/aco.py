@@ -11,27 +11,30 @@ class Ant:
         self.graph = graph
         self.solution = None
         self.cost = 0
+        self.unvisited_nodes = list(self.graph.vertices)
 
     def _select_node(self):
-        unvisited_vertices = [vertice for vertice in range(self.number_vertices) if vertice not in self.solution]
 
         denominator = 0
-        for unvisited in unvisited_vertices:
+        for unvisited in self.unvisited_nodes:
             pheromone = math.pow(self.graph.edges[(self.solution[-1], unvisited)].pheromone, self.alpha)
             visibility = math.pow(1 / self.graph.edges[(self.solution[-1], unvisited)].cost, self.beta)
             denominator += pheromone * visibility
 
         random_value = random.uniform(0, 1)
         cumulative_probability = 0
-        for unvisited in unvisited_vertices:
+        for unvisited in self.unvisited_nodes:
             pheromone = math.pow(self.graph.edges[(self.solution[-1], unvisited)].pheromone, self.alpha)
             visibility = math.pow(1 / self.graph.edges[(self.solution[-1], unvisited)].cost, self.beta)
             cumulative_probability += (pheromone * visibility) / denominator
             if cumulative_probability >= random_value:
+                self.unvisited_nodes.remove(unvisited)
                 return unvisited
 
     def find_solution(self):
         self.solution = [random.randint(0, self.number_vertices - 1)]
+        self.unvisited_nodes = list(self.graph.vertices)
+        self.unvisited_nodes.remove(self.solution[0])
         while len(self.solution) < self.number_vertices:
             self.solution.append(self._select_node())
         return self.solution

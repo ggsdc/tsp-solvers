@@ -53,7 +53,7 @@ class PSO:
     def run(self):
 
         frac = 0.1
-        initial_time= datetime.datetime.utcnow()
+        initial_time = datetime.datetime.utcnow()
 
         for i in range(self.iterations):
             if i / self.iterations >= frac:
@@ -106,7 +106,7 @@ class PSO:
                     particle.best_cost = current_cost
                     particle.best_solution = solution_particle
 
-            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+            if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
 
     def save(self, file):
@@ -114,6 +114,6 @@ class PSO:
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-        text = 'PSO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) +'\n'
+        text = 'PSO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) + '\n'
         with open(file, "a") as myfile:
             myfile.write(text)

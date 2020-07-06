@@ -1,13 +1,15 @@
 import random
 
-class Edge():
+
+class Edge:
     def __init__(self, origin, destination, cost, initial_pheromone=0):
         self.origin = origin
         self.destination = destination
         self.cost = cost
         self.pheromone = initial_pheromone
 
-class Graph():
+
+class Graph:
     def __init__(self, vertices):
         self.edges = {}
         self.vertices = set()
@@ -34,7 +36,7 @@ class Graph():
         for i in range(self.number_vertices):
             for j in range(self.number_vertices):
                 if i < j:
-                    cost = random.randint(1,10)
+                    cost = random.randint(1, 10)
                     self.add_edge(i, j, cost)
                     self.add_edge(j, i, cost)
 
@@ -51,7 +53,7 @@ class Graph():
     def get_cost(self, path):
         total_cost = 0
         for i in range(self.number_vertices - 1):
-            total_cost += self.edges[(path[i], path[i+1])].cost
+            total_cost += self.edges[(path[i], path[i + 1])].cost
 
         total_cost += self.edges[(path[self.number_vertices - 1], path[0])].cost
         return total_cost

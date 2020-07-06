@@ -4,30 +4,34 @@ from src.aco import ACO
 from src.ga import GA
 from src.lp import LP
 import datetime
-#
+
 sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
 times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
-
+iterations = [100, 100, 100, 100, 100, 100, 200, 200, 200, 400, 400, 400]
+population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
 
 for i in range(len(sizes)):
     size = sizes[i]
     max_time = times[i]
+    num_iterations = iterations[i]
+    population_size = population[i]
 
     graph = Graph(size)
     graph.random_complete_graph()
     # graph.show()
     #
-    pso = PSO(graph, iterations=500, size_population=50, alpha=0.9, beta=1, max_time=max_time)
+    pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.9, beta=1, max_time=max_time)
     t1 = datetime.datetime.utcnow()
     pso.run()
     t2 = datetime.datetime.utcnow()
 
-    acs = ACO(graph=graph, iterations=500, population_size=50, max_time=max_time)
+    acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
     t3 = datetime.datetime.utcnow()
     acs.run()
     t4 = datetime.datetime.utcnow()
 
-    ga = GA(graph=graph, max_generations=500, population_size=50, mutation_probability=0.1, max_time=max_time)
+    ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
+            max_time=max_time)
     t5 = datetime.datetime.utcnow()
     ga.run()
     t6 = datetime.datetime.utcnow()
@@ -48,9 +52,9 @@ for i in range(len(sizes)):
     # ga.get_best()
     # lp.show()
 
-    file = 'results-2.txt'
+    file = 'results-3.txt'
     text = 'Graph: ' + str(size) + ' nodes\n'
-    with open('results.txt', "a") as myfile:
+    with open(file, "a") as myfile:
         myfile.write('-----------------------------\n')
         myfile.write(text)
         myfile.close()

@@ -67,6 +67,9 @@ class Individual:
 class GA:
 
     def __init__(self, graph, max_generations, population_size, mutation_probability, max_time):
+        """
+
+        """
         self.individuals = list()
         self.graph = graph
         self.max_generations = max_generations
@@ -174,7 +177,7 @@ class GA:
             self.mutation()
             self.substitution()
             # self.get_best()
-            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+            if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
 
         # print('FINISHED')
