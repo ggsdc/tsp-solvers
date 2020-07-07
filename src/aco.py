@@ -45,7 +45,7 @@ class Ant:
 
 
 class ACO:
-    def __init__(self, mode='ACS', graph=None, iterations=100, population_size=10, elitist_weight=1,
+    def __init__(self, mode='AS', graph=None, iterations=100, population_size=10, elitist_weight=1,
                  min_scaling_factor=0.001, alpha=1, beta=3, rho=0.1, pheromone_deposit=1, initial_pheromone=1,
                  max_time=60):
         self.mode = mode
@@ -74,7 +74,7 @@ class ACO:
         pheromone_to_add = self.pheromone_deposit / cost
         for i in range(self.number_vertices):
             self.graph.edges[(solution[i], solution[(i + 1) % self.number_vertices])].pheromone = \
-                self.graph.edges[(solution[i], solution[(i + 1) % self.number_vertices])].pheromone * self.rho + \
+                self.graph.edges[(solution[i], solution[(i + 1) % self.number_vertices])].pheromone + \
                 weight * pheromone_to_add
 
     def get_best(self):
@@ -85,13 +85,18 @@ class ACO:
         print('\nACO:')
         print('Best solution: ', str(best.solution), "\t|\tcost: ", str(best.cost))
 
-    def _acs(self):
+    def _as(self):
         frac = 0.1
         initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
             if i / self.iterations >= frac:
                 print(str(frac * 100) + '% iterations complete')
                 frac += 0.1
+
+            if i != 0:
+                for edge in self.graph.edges:
+                    self.graph.edges[edge].pheromone = self.graph.edges[edge].pheromone * (1 - self.rho)
+
             for ant in self.ants:
                 self._add_pheromone(ant.find_solution(), ant.get_cost())
                 if ant.cost < self.best_cost:
@@ -102,8 +107,8 @@ class ACO:
                 break
 
     def run(self):
-        if self.mode == 'ACS':
-            self._acs()
+        if self.mode == 'AS':
+            self._as()
         else:
             pass
 

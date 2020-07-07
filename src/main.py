@@ -5,10 +5,10 @@ from src.ga import GA
 from src.lp import LP
 import datetime
 
-sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
-times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
-iterations = [100, 100, 100, 100, 100, 100, 200, 200, 200, 400, 400, 400]
-population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
+sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250]
+times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
+iterations = [100, 100, 100, 100, 100, 100, 200, 200, 200]
+population = [10, 10, 10, 10, 10, 10, 25, 25, 25]
 
 for i in range(len(sizes)):
     size = sizes[i]
@@ -20,7 +20,7 @@ for i in range(len(sizes)):
     graph.random_complete_graph()
     # graph.show()
     #
-    pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.9, beta=1, max_time=max_time)
+    pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.7, beta=0.7, max_time=max_time)
     t1 = datetime.datetime.utcnow()
     pso.run()
     t2 = datetime.datetime.utcnow()
@@ -47,12 +47,12 @@ for i in range(len(sizes)):
     print('GA time: ', t6 - t5)
     print('LP time: ', t8 - t7)
 
-    # pso.get_best()
-    # acs.get_best()
-    # ga.get_best()
-    # lp.show()
+    pso.get_best()
+    acs.get_best()
+    ga.get_best()
+    lp.show()
 
-    file = 'results-3.txt'
+    file = 'results.txt'
     text = 'Graph: ' + str(size) + ' nodes\n'
     with open(file, "a") as myfile:
         myfile.write('-----------------------------\n')
