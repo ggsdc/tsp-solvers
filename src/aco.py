@@ -85,13 +85,24 @@ class ACO:
         print('\nACO:')
         print('Best solution: ', str(best.solution), "\t|\tcost: ", str(best.cost))
 
+    def evaluate(self):
+        costs = [i.cost for i in self.ants]
+        mean_cost = sum(costs) / len(costs)
+        min_cost = min(costs)
+
+        if min_cost*1.01 > mean_cost:
+            print('BREAK')
+            return True
+        else:
+            return False
+
     def _as(self):
-        frac = 0.1
+        frac = 0.01
         initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
             if i / self.iterations >= frac:
-                print(str(frac * 100) + '% iterations complete')
-                frac += 0.1
+                print("Iteration ", str(i), " of ", str(self.iterations))
+                frac += 0.01
 
             if i != 0:
                 for edge in self.graph.edges:
@@ -102,6 +113,10 @@ class ACO:
                 if ant.cost < self.best_cost:
                     self.best_solution = ant.solution
                     self.best_cost = ant.cost
+
+            if i > self.iterations // 10:
+                if self.evaluate():
+                    break
 
             if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
                 break

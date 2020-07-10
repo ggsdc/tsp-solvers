@@ -1,6 +1,7 @@
 import copy
 import datetime
 import random
+from statistics import mean
 
 
 class Individual:
@@ -154,28 +155,42 @@ class GA:
 
     def substitution(self):
         new_population = []
-        iterator_list = copy.deepcopy(self.individuals)
+        iterator_list = copy.deepcopy(self.individuals + self.children)
 
-        while len(new_population) < self.population_size // 2:
+        while len(new_population) < self.population_size:
             selected = min(iterator_list, key=lambda i: i.cost)
             iterator_list.remove(selected)
             new_population.append(selected)
 
-        new_population = new_population + self.children
         self.individuals = new_population
+
+    def evaluate(self):
+        costs = [i.cost for i in self.individuals]
+        mean_cost = sum(costs) / len(costs)
+        min_cost = min(costs)
+        if min_cost * 1.01 > mean_cost:
+            print('BREAK')
+            return True
+        else:
+            return False
 
     def run(self):
         frac = 0.1
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
             if i / self.max_generations >= frac:
-                print(str(frac*100) + '% iterations complete')
+                print("Iteration ", str(i), " of ", str(self.max_generations))
                 frac += 0.1
             # print("Generation: ", i + 1)
             self.selection()
             self.cross_over()
             self.mutation()
             self.substitution()
+
+            if i > self.max_generations // 2:
+                if self.evaluate():
+                    break
+
             # self.get_best()
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break

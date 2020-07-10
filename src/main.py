@@ -10,6 +10,11 @@ times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
 iterations = [100, 100, 100, 100, 100, 100, 200, 200, 200]
 population = [10, 10, 10, 10, 10, 10, 25, 25, 25]
 
+sizes = [75]
+times = [60]
+iterations = [1000]
+population = [10]
+
 for i in range(len(sizes)):
     size = sizes[i]
     max_time = times[i]
@@ -30,7 +35,7 @@ for i in range(len(sizes)):
     acs.run()
     t4 = datetime.datetime.utcnow()
 
-    ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
+    ga = GA(graph=graph, max_generations=num_iterations, population_size=10*population_size, mutation_probability=0.1,
             max_time=max_time)
     t5 = datetime.datetime.utcnow()
     ga.run()
