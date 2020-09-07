@@ -67,6 +67,11 @@ class LP:
 
             self.cost = self.graph.get_cost(self.solution)
 
+            filename = "plots/lp_" + str(self.graph.number_vertices) + '.png'
+            title = "Mathematical optimization " + '\n Solution cost: ' + str(
+                round(self.cost, 2))
+            self.graph.plot_solution(self.solution, pheromones=False, filename=filename, title=title)
+
         else:
             self.cost = float("-inf")
 

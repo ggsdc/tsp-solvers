@@ -50,15 +50,31 @@ class PSO:
         for particle in self.particles:
             print('Best solution: %s\t|\tcost: %d' % (str(particle.best_solution), particle.best_cost))
 
+    def evaluate(self):
+        costs = [i.cost for i in self.particles]
+        mean_cost = sum(costs) / len(costs)
+        min_cost = min(costs)
+
+        if min_cost*1.01 > mean_cost:
+            print('BREAK')
+            return True
+        else:
+            return False
+
     def run(self):
 
         frac = 0.1
+        plot = [10 * x for x in range(1, self.iterations//10)]
         initial_time = datetime.datetime.utcnow()
 
         for i in range(self.iterations):
             if i / self.iterations >= frac:
-                print(str(frac*100) + '% iterations complete')
+                print("Iteration ", str(i), " of ", str(self.iterations))
                 frac += 0.1
+
+            if i >= self.iterations // 2:
+                if self.evaluate():
+                    break
 
             self.best = min(self.particles, key=lambda p: p.best_cost)
 
@@ -105,6 +121,11 @@ class PSO:
                 if current_cost < particle.best_cost:
                     particle.best_cost = current_cost
                     particle.best_solution = solution_particle
+
+            if (i+1) in plot:
+                filename = 'plots/pso_' + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
+                title = "Particle Swarm Optimization. Iteration " + str(i+1) + '\n Solution cost: ' + str(round(particle.best_cost, 2))
+                self.graph.plot_solution(particle.best_solution, filename=filename, title=title)
 
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break

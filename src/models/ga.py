@@ -1,7 +1,6 @@
 import copy
 import datetime
 import random
-from statistics import mean
 
 
 class Individual:
@@ -14,23 +13,6 @@ class Individual:
         self.cost = cost
         self.number_vertices = len(genes)
         self.id = idx
-
-    def swap(self, gene_1, gene_2):
-        a = self.genes.index(gene_1)
-        b = self.genes.index(gene_2)
-
-        aux = self.genes[a]
-        self.genes[a] = self.genes[b]
-        self.genes[b] = aux
-
-        self.__reset_params()
-
-    def add(self, gene):
-        self.genes.append(gene)
-        self.__reset_params()
-
-    def __reset_params(self):
-        self.cost = 0
 
     def random_sub_solution(self):
         start = random.randrange(0, self.number_vertices)
@@ -81,6 +63,9 @@ class GA:
         self.id = 1
         self.max_time = max_time
 
+        self.best_genes = None
+        self.best_cost = float("inf")
+
         solutions = self.graph.get_random_path(self.population_size)
         for solution in solutions:
             individual = Individual(genes=solution, cost=self.graph.get_cost(solution), idx=self.id)
@@ -94,6 +79,12 @@ class GA:
                 best = individual
         print("\nGA:")
         print('Best solution: ', str(best.genes), "\t|\tcost: ", str(best.cost))
+
+    def update_best(self):
+        for individual in self.individuals:
+            if individual.cost < self.best_cost:
+                self.best_genes = individual.genes
+                self.best_cost = individual.cost
 
     def best_insertion(self, child, sub_solution):
         start = sub_solution[0]
@@ -176,6 +167,7 @@ class GA:
 
     def run(self):
         frac = 0.1
+        plot = [10 * x for x in range(1, self.max_generations//10)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
             if i / self.max_generations >= frac:
@@ -186,10 +178,16 @@ class GA:
             self.cross_over()
             self.mutation()
             self.substitution()
+            self.update_best()
 
-            if i > self.max_generations // 2:
+            if i >= self.max_generations // 2:
                 if self.evaluate():
                     break
+
+            if (i + 1) in plot:
+                filename = "plots/ga_" + str(self.graph.number_vertices) + '_' + str(i + 1) + '.png'
+                title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + str(round(self.best_cost, 2))
+                self.graph.plot_solution(self.best_genes, pheromones=False, filename=filename, title=title)
 
             # self.get_best()
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
