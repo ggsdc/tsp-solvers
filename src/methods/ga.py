@@ -77,7 +77,6 @@ class GA:
         solutions = self.initializer.get_init()
 
         for solution in solutions:
-            print(solution)
             individual = Individual(genes=solution, cost=self.graph.get_cost(solution), idx=self.id)
             self.id += 1
             self.individuals.append(individual)

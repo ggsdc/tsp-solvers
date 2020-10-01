@@ -2,6 +2,7 @@ import random
 import copy
 import datetime
 
+from ..initializers import NearestNeighbor, RandomInitializer
 
 class Particle:
 
@@ -18,18 +19,25 @@ class Particle:
 
 
 class PSO:
-    def __init__(self, graph, iterations, size_population, alpha=1, beta=1, max_time=60, plot=False):
+    def __init__(self, graph, iterations, population_size, alpha=1, beta=1, max_time=60, init="random", plot=False):
         self.graph = graph
         self.iterations = iterations
-        self.size_population = size_population
+        self.population_size = population_size
         self.alpha = alpha
         self.beta = beta
         self.particles = list()
         self.best = None
         self.max_time = max_time
         self.plot = plot
+        self.init = init
+        self.initializer = None
 
-        solutions = self.graph.get_random_path(self.size_population)
+        if self.init == "random":
+            self.initializer = RandomInitializer(self.graph, self.population_size)
+        elif self.init == "nearest":
+            self.initializer = NearestNeighbor(self.graph, self.population_size)
+
+        solutions = self.initializer.get_init()
 
         for solution in solutions:
             particle = Particle(solution=solution, cost=graph.get_cost(solution))

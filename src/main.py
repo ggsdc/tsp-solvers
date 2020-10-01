@@ -22,15 +22,16 @@ for i in range(len(sizes)):
     # graph.plot()
     # graph.show()
 
-    # pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.7, beta=0.7, max_time=max_time)
-    # t1 = datetime.datetime.utcnow()
-    # pso.run()
-    # t2 = datetime.datetime.utcnow()
-    #
-    # acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
-    # t3 = datetime.datetime.utcnow()
-    # acs.run()
-    # t4 = datetime.datetime.utcnow()
+    pso = PSO(graph, iterations=num_iterations, population_size=population_size, alpha=0.7, beta=0.7, max_time=max_time,
+              init="nearest")
+    t1 = datetime.datetime.utcnow()
+    pso.run()
+    t2 = datetime.datetime.utcnow()
+
+    acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
+    t3 = datetime.datetime.utcnow()
+    acs.run()
+    t4 = datetime.datetime.utcnow()
 
     ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
             init="nearest", max_time=max_time)
@@ -44,24 +45,24 @@ for i in range(len(sizes)):
     lp.run()
     t8 = datetime.datetime.utcnow()
 
-    # print('PSO time: ', t2 - t1)
-    # print('ACO time: ', t4 - t3)
-    # print('GA time: ', t6 - t5)
-    # print('LP time: ', t8 - t7)
-    #
-    # pso.get_best()
-    # acs.get_best()
+    print('PSO time: ', t2 - t1)
+    print('ACO time: ', t4 - t3)
+    print('GA time: ', t6 - t5)
+    print('LP time: ', t8 - t7)
+
+    pso.get_best()
+    acs.get_best()
     ga.get_best()
     lp.show()
-    #
-    # file = 'test.txt'
-    # text = 'Graph: ' + str(size) + ' nodes\n'
-    # with open(file, "a") as myfile:
-    #     myfile.write('-----------------------------\n')
-    #     myfile.write(text)
-    #     myfile.close()
-    #
-    # pso.save(file)
-    # acs.save(file)
-    # ga.save(file)
-    # lp.save(file)
+
+    file = 'test.txt'
+    text = 'Graph: ' + str(size) + ' nodes\n'
+    with open(file, "a") as myfile:
+        myfile.write('-----------------------------\n')
+        myfile.write(text)
+        myfile.close()
+
+    pso.save(file)
+    acs.save(file)
+    ga.save(file)
+    lp.save(file)
