@@ -2,6 +2,7 @@ import copy
 import datetime
 import random
 
+from ..initializers import NearestNeighbor, RandomInitializer
 
 class Individual:
     """
@@ -49,7 +50,7 @@ class Individual:
 
 class GA:
 
-    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, plot=False):
+    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, init="random", plot=False):
         """
 
         """
@@ -66,9 +67,17 @@ class GA:
         self.best_genes = None
         self.best_cost = float("inf")
         self.plot = plot
+        self.init = init
+        self.initializer = None
+        if self.init == "random":
+            self.initializer = RandomInitializer(self.graph, self.population_size)
+        elif self.init == "nearest":
+            self.initializer = NearestNeighbor(self.graph, self.population_size)
 
-        solutions = self.graph.get_random_path(self.population_size)
+        solutions = self.initializer.get_init()
+
         for solution in solutions:
+            print(solution)
             individual = Individual(genes=solution, cost=self.graph.get_cost(solution), idx=self.id)
             self.id += 1
             self.individuals.append(individual)

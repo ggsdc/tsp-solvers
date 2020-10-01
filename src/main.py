@@ -1,8 +1,4 @@
-from src.models.graph import Graph
-from src.models.pso import PSO
-from src.models.aco import ACO
-from src.models.ga import GA
-from src.models.lp import LP
+from src.methods import ACO, GA, Graph, LP, PSO
 import datetime
 
 sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
@@ -10,10 +6,10 @@ times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
 iterations = [1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000]
 population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
 
-sizes = [50]
-times = [3600]
-iterations = [1000]
-population = [20]
+# sizes = [15]
+# times = [3600]
+# iterations = [1000]
+# population = [10]
 
 for i in range(len(sizes)):
     size = sizes[i]
@@ -23,21 +19,21 @@ for i in range(len(sizes)):
 
     graph = Graph(size)
     graph.random_complete_graph()
-    graph.plot()
+    # graph.plot()
     # graph.show()
 
-    pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.7, beta=0.7, max_time=max_time)
-    t1 = datetime.datetime.utcnow()
-    pso.run()
-    t2 = datetime.datetime.utcnow()
+    # pso = PSO(graph, iterations=num_iterations, size_population=population_size, alpha=0.7, beta=0.7, max_time=max_time)
+    # t1 = datetime.datetime.utcnow()
+    # pso.run()
+    # t2 = datetime.datetime.utcnow()
+    #
+    # acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
+    # t3 = datetime.datetime.utcnow()
+    # acs.run()
+    # t4 = datetime.datetime.utcnow()
 
-    acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
-    t3 = datetime.datetime.utcnow()
-    acs.run()
-    t4 = datetime.datetime.utcnow()
-
-    ga = GA(graph=graph, max_generations=num_iterations, population_size=10 * population_size, mutation_probability=0.1,
-            max_time=max_time)
+    ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
+            init="nearest", max_time=max_time)
     t5 = datetime.datetime.utcnow()
     ga.run()
     t6 = datetime.datetime.utcnow()
@@ -55,8 +51,8 @@ for i in range(len(sizes)):
     #
     # pso.get_best()
     # acs.get_best()
-    # ga.get_best()
-    # lp.show()
+    ga.get_best()
+    lp.show()
     #
     # file = 'test.txt'
     # text = 'Graph: ' + str(size) + ' nodes\n'
