@@ -87,8 +87,8 @@ class Graph:
             self.vertices.add(i)
             new = True
             while new:
-                x = random.randint(0, self.number_vertices)
-                y = random.randint(0, self.number_vertices)
+                x = random.randint(0, self.number_vertices*2)
+                y = random.randint(0, self.number_vertices*2)
                 repeat = False
 
                 for j in self.vertices_coordinates:

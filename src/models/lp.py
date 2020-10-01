@@ -2,7 +2,7 @@ from pulp import *
 
 
 class LP:
-    def __init__(self, graph, max_time):
+    def __init__(self, graph, max_time, plot=False):
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
         self.v01Travels = LpVariable.dicts("Travel", ((edge[0], edge[1]) for edge in self.graph.edges), cat="Binary")
@@ -12,6 +12,7 @@ class LP:
         self.solution = list()
         self.cost = 0
         self.max_time = max_time
+        self.plot = plot
 
     def build_model(self):
 
@@ -67,10 +68,11 @@ class LP:
 
             self.cost = self.graph.get_cost(self.solution)
 
-            filename = "plots/lp_" + str(self.graph.number_vertices) + '.png'
-            title = "Mathematical optimization " + '\n Solution cost: ' + str(
-                round(self.cost, 2))
-            self.graph.plot_solution(self.solution, pheromones=False, filename=filename, title=title)
+            if self.plot:
+                filename = "plots/lp_" + str(self.graph.number_vertices) + '.png'
+                title = "Mathematical optimization " + '\n Solution cost: ' + str(
+                    round(self.cost, 2))
+                self.graph.plot_solution(self.solution, pheromones=False, filename=filename, title=title)
 
         else:
             self.cost = float("-inf")

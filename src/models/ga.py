@@ -49,7 +49,7 @@ class Individual:
 
 class GA:
 
-    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time):
+    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, plot=False):
         """
 
         """
@@ -65,6 +65,7 @@ class GA:
 
         self.best_genes = None
         self.best_cost = float("inf")
+        self.plot = plot
 
         solutions = self.graph.get_random_path(self.population_size)
         for solution in solutions:
@@ -167,7 +168,7 @@ class GA:
 
     def run(self):
         frac = 0.1
-        plot = [10 * x for x in range(1, self.max_generations//10)]
+        plot = [10 * x for x in range(1, self.max_generations//10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
             if i / self.max_generations >= frac:
@@ -180,14 +181,15 @@ class GA:
             self.substitution()
             self.update_best()
 
-            if i >= self.max_generations // 2:
+            if i >= self.max_generations // 5:
                 if self.evaluate():
                     break
 
-            if (i + 1) in plot:
-                filename = "plots/ga_" + str(self.graph.number_vertices) + '_' + str(i + 1) + '.png'
-                title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + str(round(self.best_cost, 2))
-                self.graph.plot_solution(self.best_genes, pheromones=False, filename=filename, title=title)
+            if self.plot:
+                if (i + 1) in plot:
+                    filename = "plots/ga_" + str(self.graph.number_vertices) + '_' + str(i + 1) + '.png'
+                    title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + str(round(self.best_cost, 2))
+                    self.graph.plot_solution(self.best_genes, pheromones=False, filename=filename, title=title)
 
             # self.get_best()
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:

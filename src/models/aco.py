@@ -3,6 +3,7 @@ import math
 import random
 from itertools import accumulate
 
+
 class Ant:
     def __init__(self, alpha, beta, number_vertices, graph):
         self.alpha = alpha
@@ -44,7 +45,7 @@ class Ant:
 class ACO:
     def __init__(self, mode='AS', graph=None, iterations=100, population_size=10, elitist_weight=1,
                  min_scaling_factor=0.001, alpha=1, beta=3, rho=0.1, pheromone_deposit=1, initial_pheromone=1,
-                 max_time=60):
+                 max_time=60, plot=False):
         self.mode = mode
         self.graph = graph
         self.iterations = iterations
@@ -58,6 +59,7 @@ class ACO:
         self.initial_pheromone = initial_pheromone
         self.number_vertices = self.graph.number_vertices
         self.max_time = max_time
+        self.plot = plot
 
         for edge in self.graph.edges:
             self.graph.update_pheromone(edge, initial_pheromone)
@@ -98,7 +100,7 @@ class ACO:
     # @profile
     def _as(self):
         frac = 0.1
-        plot = [10 * x for x in range(1, self.iterations//10)]
+        plot = [10 * x for x in range(1, self.iterations//10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
             if i / self.iterations >= frac:
@@ -115,14 +117,15 @@ class ACO:
                     self.best_solution = ant.solution
                     self.best_cost = ant.cost
 
-            if i >= self.iterations // 2:
+            if i >= self.iterations // 5:
                 if self.evaluate():
                     break
 
-            if (i + 1) in plot:
-                filename = "plots/aco_" + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
-                title = "Ant Colony Optimization. Iteration " + str(i+1) + '\n Solution cost: ' + str(round(self.best_cost,2))
-                self.graph.plot_solution(self.best_solution, pheromones=True, filename=filename, title=title)
+            if self.plot:
+                if (i + 1) in plot:
+                    filename = "plots/aco_" + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
+                    title = "Ant Colony Optimization. Iteration " + str(i+1) + '\n Solution cost: ' + str(round(self.best_cost,2))
+                    self.graph.plot_solution(self.best_solution, pheromones=True, filename=filename, title=title)
 
             if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
                 break
