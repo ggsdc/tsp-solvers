@@ -1,4 +1,4 @@
-from src.methods import ACO, GA, Graph, LP, PSO
+from src.methods import ACO, GA, Graph, LP, PSO, TwoOpt
 import datetime
 
 sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
@@ -45,11 +45,18 @@ for i in range(len(sizes)):
     lp.run()
     t8 = datetime.datetime.utcnow()
 
+    two_opt = TwoOpt(graph, max_time=max_time, init="random")
+    t9 = datetime.datetime.utcnow()
+    two_opt.run()
+    t10 = datetime.datetime.utcnow()
+
     print('PSO time: ', t2 - t1)
     print('ACO time: ', t4 - t3)
     print('GA time: ', t6 - t5)
     print('LP time: ', t8 - t7)
+    print('Two opt time: ', t10 - t9)
 
+    two_opt.get_best()
     pso.get_best()
     acs.get_best()
     ga.get_best()

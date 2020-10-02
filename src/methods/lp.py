@@ -35,7 +35,7 @@ class LP:
 
     def run(self):
         self.model.solve(
-            GUROBI_CMD(msg=0, options=[('TimeLimit', self.max_time), ('MIPGap', 0.05), ('MIPGapAbs', 0.05)]))
+            GUROBI_CMD(msg=1, options=[('TimeLimit', self.max_time), ('MIPGap', 0.05), ('MIPGapAbs', 0.05)]))
         # self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
 
         print(self.model.status)
