@@ -17,8 +17,10 @@ class Ant:
     # @profile
     def _select_node(self):
 
-        pheromone = [math.pow(self.graph.edges[(self.solution[-1], unvisited)].pheromone, self.alpha) for unvisited in self.unvisited_nodes]
-        visibility = [math.pow(1 / self.graph.edges[(self.solution[-1], unvisited)].cost, self.beta) for unvisited in self.unvisited_nodes]
+        pheromone = [math.pow(self.graph.edges[(self.solution[-1], unvisited)].pheromone, self.alpha)
+                     for unvisited in self.unvisited_nodes]
+        visibility = [math.pow(1 / self.graph.edges[(self.solution[-1], unvisited)].cost, self.beta)
+                      for unvisited in self.unvisited_nodes]
         denominator = sum([x * y for x, y in zip(pheromone, visibility)])
         cumulative_probability = list(accumulate([p*h/denominator for p, h in zip(pheromone, visibility)]))
         random_value = random.uniform(0, 1)
@@ -60,6 +62,7 @@ class ACO:
         self.number_vertices = self.graph.number_vertices
         self.max_time = max_time
         self.plot = plot
+        self.time = None
 
         for edge in self.graph.edges:
             self.graph.update_pheromone(edge, initial_pheromone)
@@ -124,17 +127,20 @@ class ACO:
             if self.plot:
                 if (i + 1) in plot:
                     filename = "plots/aco_" + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
-                    title = "Ant Colony Optimization. Iteration " + str(i+1) + '\n Solution cost: ' + str(round(self.best_cost,2))
+                    title = "Ant Colony Optimization. Iteration " + str(i+1) + '\n Solution cost: ' \
+                            + str(round(self.best_cost, 2))
                     self.graph.plot_solution(self.best_solution, pheromones=True, filename=filename, title=title)
 
-            if (datetime.datetime.utcnow()- initial_time).seconds > self.max_time:
+            if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
 
     def run(self):
+        start = datetime.datetime.utcnow()
         if self.mode == 'AS':
             self._as()
         else:
             pass
+        self.time = datetime.datetime.utcnow() - start
 
     def show(self):
         print("\nSOLUTION:")
@@ -147,8 +153,9 @@ class ACO:
         for ant in self.ants:
             if ant.cost < best.cost:
                 best = ant
-        text = 'ACO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) +'\n'
+        text = 'ACO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) + '\n'
         with open(file, "a") as myfile:
             myfile.write(text)
 
-
+    def get_time(self):
+        return self.time

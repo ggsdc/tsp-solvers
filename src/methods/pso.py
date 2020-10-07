@@ -1,8 +1,9 @@
-import random
 import copy
 import datetime
+import random
 
 from ..initializers import NearestNeighbor, RandomInitializer
+
 
 class Particle:
 
@@ -19,7 +20,7 @@ class Particle:
 
 
 class PSO:
-    def __init__(self, graph, iterations, population_size, alpha=1, beta=1, max_time=60, init="random", plot=False):
+    def __init__(self, graph, iterations, population_size, alpha=1, beta=1, max_time=60, init='random', plot=False):
         self.graph = graph
         self.iterations = iterations
         self.population_size = population_size
@@ -28,13 +29,14 @@ class PSO:
         self.particles = list()
         self.best = None
         self.max_time = max_time
+        self.time = None
         self.plot = plot
         self.init = init
         self.initializer = None
 
-        if self.init == "random":
+        if self.init == 'random':
             self.initializer = RandomInitializer(self.graph, self.population_size)
-        elif self.init == "nearest":
+        elif self.init == 'nearest':
             self.initializer = NearestNeighbor(self.graph, self.population_size)
 
         solutions = self.initializer.get_init()
@@ -50,12 +52,12 @@ class PSO:
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-        print("\nPSO:")
-        print('Best solution: ', str(best.solution), "\t|\tcost: ", str(best.cost))
+        print('\nPSO:')
+        print('Best solution: ', str(best.solution), '\t|\tcost: ', str(best.cost))
 
     def show(self):
-        print("\nSOLUTION:")
-        print("Particles: " + str(self.size_population) + ". Iterations: " + str(self.iterations))
+        print('\nSOLUTION:')
+        print('Particles: ' + str(self.size_population) + '. Iterations: ' + str(self.iterations))
         for particle in self.particles:
             print('Best solution: %s\t|\tcost: %d' % (str(particle.best_solution), particle.best_cost))
 
@@ -71,14 +73,14 @@ class PSO:
             return False
 
     def run(self):
-
+        start = datetime.datetime.utcnow()
         frac = 0.1
         plot_interval = [10 * x for x in range(1, self.iterations//10 + 1)]
         initial_time = datetime.datetime.utcnow()
 
         for i in range(self.iterations):
             if i / self.iterations >= frac:
-                print("Iteration ", str(i), " of ", str(self.iterations))
+                print('Iteration ', str(i), ' of ', str(self.iterations))
                 frac += 0.1
 
             if i >= self.iterations // 5:
@@ -134,17 +136,22 @@ class PSO:
             if self.plot:
                 if (i+1) in plot_interval:
                     filename = 'plots/pso_' + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
-                    title = "Particle Swarm Optimization. Iteration " + str(i+1) + '\n Solution cost: ' + str(round(particle.best_cost, 2))
+                    title = 'Particle Swarm Optimization. Iteration ' + str(i+1) + '\n Solution cost: ' + str(round(particle.best_cost, 2))
                     self.graph.plot_solution(particle.best_solution, filename=filename, title=title)
 
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
+
+        self.time = datetime.datetime.utcnow() - start
 
     def save(self, file):
         best = self.particles[0]
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-        text = 'PSO. Best solution: ' + str(best.solution) + "\t|\tCost: " + str(best.cost) + '\n'
-        with open(file, "a") as myfile:
+        text = 'PSO. Best solution: ' + str(best.solution) + '\t|\tCost: ' + str(best.cost) + '\n'
+        with open(file, 'a') as myfile:
             myfile.write(text)
+
+    def get_time(self):
+        return self.time

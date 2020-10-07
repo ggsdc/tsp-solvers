@@ -4,6 +4,7 @@ import random
 
 from ..initializers import NearestNeighbor, RandomInitializer
 
+
 class Individual:
     """
     The genes are the solution (path)
@@ -50,7 +51,8 @@ class Individual:
 
 class GA:
 
-    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, init="random", plot=False):
+    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, init="random",
+                 plot=False):
         """
 
         """
@@ -63,6 +65,7 @@ class GA:
         self.children = []
         self.id = 1
         self.max_time = max_time
+        self.time = None
 
         self.best_genes = None
         self.best_cost = float("inf")
@@ -109,9 +112,9 @@ class GA:
                 best_payoff = payoff
                 j = i
 
-        payoff = self.graph.edges[(child.genes[-1], child.genes[0])].cost - \
-                 self.graph.edges[(child.genes[-1], start)].cost - \
-                 self.graph.edges[(end, child.genes[0])].cost
+        payoff = self.graph.edges[(child.genes[-1], child.genes[0])].cost \
+                 - self.graph.edges[(child.genes[-1], start)].cost \
+                 - self.graph.edges[(end, child.genes[0])].cost
 
         if payoff > best_payoff:
             best_payoff = payoff
@@ -175,6 +178,7 @@ class GA:
             return False
 
     def run(self):
+        start = datetime.datetime.utcnow()
         frac = 0.1
         plot = [10 * x for x in range(1, self.max_generations//10 + 1)]
         initial_time = datetime.datetime.utcnow()
@@ -196,12 +200,15 @@ class GA:
             if self.plot:
                 if (i + 1) in plot:
                     filename = "plots/ga_" + str(self.graph.number_vertices) + '_' + str(i + 1) + '.png'
-                    title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + str(round(self.best_cost, 2))
+                    title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + \
+                            str(round(self.best_cost, 2))
                     self.graph.plot_solution(self.best_genes, pheromones=False, filename=filename, title=title)
 
             # self.get_best()
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
+
+        self.time = datetime.datetime.utcnow() - start
 
         # print('FINISHED')
     def show(self):
@@ -218,3 +225,6 @@ class GA:
         text = 'GA. Best solution: ' + str(best.genes) + "\t|\tCost: " + str(best.cost) + '\n'
         with open(file, "a") as myfile:
             myfile.write(text)
+
+    def get_time(self):
+        return self.time

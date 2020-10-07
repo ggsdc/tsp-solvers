@@ -24,43 +24,32 @@ for i in range(len(sizes)):
 
     pso = PSO(graph, iterations=num_iterations, population_size=population_size, alpha=0.7, beta=0.7, max_time=max_time,
               init="nearest")
-    t1 = datetime.datetime.utcnow()
     pso.run()
-    t2 = datetime.datetime.utcnow()
 
     acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
-    t3 = datetime.datetime.utcnow()
     acs.run()
-    t4 = datetime.datetime.utcnow()
 
     ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
             init="nearest", max_time=max_time)
-    t5 = datetime.datetime.utcnow()
     ga.run()
-    t6 = datetime.datetime.utcnow()
 
-    t7 = datetime.datetime.utcnow()
     lp = LP(graph=graph, max_time=max_time)
     lp.build_model()
     lp.run()
-    t8 = datetime.datetime.utcnow()
 
     two_opt = TwoOpt(graph, max_time=max_time, init="random")
-    t9 = datetime.datetime.utcnow()
     two_opt.run()
-    t10 = datetime.datetime.utcnow()
 
-    print('PSO time: ', t2 - t1)
-    print('ACO time: ', t4 - t3)
-    print('GA time: ', t6 - t5)
-    print('LP time: ', t8 - t7)
-    print('Two opt time: ', t10 - t9)
-
-    two_opt.get_best()
+    print('PSO time: ', pso.get_time())
+    print('ACO time: ', acs.get_time())
+    print('GA time: ', ga.get_time())
+    print('LP time: ', lp.get_time())
+    print('Two opt time: ', two_opt.get_time())
     pso.get_best()
     acs.get_best()
     ga.get_best()
     lp.show()
+    two_opt.get_best()
 
     file = 'test.txt'
     text = 'Graph: ' + str(size) + ' nodes\n'
@@ -73,3 +62,4 @@ for i in range(len(sizes)):
     acs.save(file)
     ga.save(file)
     lp.save(file)
+    two_opt.save(file)

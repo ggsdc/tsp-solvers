@@ -1,3 +1,5 @@
+import datetime
+
 from pulp import *
 
 
@@ -12,6 +14,7 @@ class LP:
         self.solution = list()
         self.cost = 0
         self.max_time = max_time
+        self.time = None
         self.plot = plot
 
     def build_model(self):
@@ -34,6 +37,7 @@ class LP:
             self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost for edge in self.graph.edges)
 
     def run(self):
+        start = datetime.datetime.utcnow()
         self.model.solve(
             GUROBI_CMD(msg=1, options=[('TimeLimit', self.max_time), ('MIPGap', 0.05), ('MIPGapAbs', 0.05)]))
         # self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
@@ -77,6 +81,8 @@ class LP:
         else:
             self.cost = float("-inf")
 
+        self.time = datetime.datetime.utcnow() - start
+
     def show(self):
         print("\nLinear programming formulation:")
         print("Best solution: " + str(self.solution) + "\t|\tcost: " + str(self.cost))
@@ -85,3 +91,6 @@ class LP:
         text = 'LP. Best solution: ' + str(self.solution) + "\t|\tCost: " + str(self.cost) + '\n'
         with open(file, "a") as myfile:
             myfile.write(text)
+
+    def get_time(self):
+        return self.time
