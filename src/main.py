@@ -1,5 +1,5 @@
-from src.methods import ACO, GA, Graph, LP, PSO, TwoOpt
-import datetime
+from src.methods import AntColonyOptimization, GeneticAlgorithm, Graph, LinearIntegerProgram,\
+    ParticleSwarmOptimization, TwoOpt
 
 sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
 times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
@@ -22,18 +22,19 @@ for i in range(len(sizes)):
     # graph.plot()
     # graph.show()
 
-    pso = PSO(graph, iterations=num_iterations, population_size=population_size, alpha=0.7, beta=0.7, max_time=max_time,
-              init="nearest")
+    pso = ParticleSwarmOptimization(graph, iterations=num_iterations, population_size=population_size, alpha=0.7,
+                                    beta=0.7, max_time=max_time, init="nearest")
     pso.run()
 
-    acs = ACO(graph=graph, iterations=num_iterations, population_size=population_size, max_time=max_time)
+    acs = AntColonyOptimization(graph=graph, iterations=num_iterations, population_size=population_size,
+                                max_time=max_time)
     acs.run()
 
-    ga = GA(graph=graph, max_generations=num_iterations, population_size=population_size, mutation_probability=0.1,
-            init="nearest", max_time=max_time)
+    ga = GeneticAlgorithm(graph=graph, max_generations=num_iterations, population_size=population_size,
+                          mutation_probability=0.1, init="nearest", max_time=max_time)
     ga.run()
 
-    lp = LP(graph=graph, max_time=max_time)
+    lp = LinearIntegerProgram(graph=graph, max_time=max_time)
     lp.build_model()
     lp.run()
 

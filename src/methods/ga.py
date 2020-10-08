@@ -49,7 +49,7 @@ class Individual:
         return str(self.genes)
 
 
-class GA:
+class GeneticAlgorithm:
 
     def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, init="random",
                  plot=False):

@@ -44,7 +44,7 @@ class Ant:
         return self.cost
 
 
-class ACO:
+class AntColonyOptimization:
     def __init__(self, mode='AS', graph=None, iterations=100, population_size=10, elitist_weight=1,
                  min_scaling_factor=0.001, alpha=1, beta=3, rho=0.1, pheromone_deposit=1, initial_pheromone=1,
                  max_time=60, plot=False):

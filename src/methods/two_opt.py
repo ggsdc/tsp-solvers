@@ -1,6 +1,7 @@
-from ..initializers import NearestNeighbor, RandomInitializer
-import datetime
 import copy
+import datetime
+
+from ..initializers import NearestNeighbor, RandomInitializer
 
 
 class TwoOpt:

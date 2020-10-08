@@ -19,7 +19,7 @@ class Particle:
         del self.velocity[:]
 
 
-class PSO:
+class ParticleSwarmOptimization:
     def __init__(self, graph, iterations, population_size, alpha=1, beta=1, max_time=60, init='random', plot=False):
         self.graph = graph
         self.iterations = iterations
