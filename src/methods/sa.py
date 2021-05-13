@@ -1,10 +1,9 @@
-from..initializers import RandomInitializer, NearestNeighbor
+from ..initializers import RandomInitializer, NearestNeighbor
 
 
 class SimulatedAnnealing:
-
-    def __init__(self, graph, t_max, t_min, max_time, init='random', plot=False):
-        assert t_max > t_min > 0, 't_max > t_min > 0'
+    def __init__(self, graph, t_max, t_min, max_time, init="random", plot=False):
+        assert t_max > t_min > 0, "t_max > t_min > 0"
 
         self.graph = graph
         self.t_max = t_max
@@ -14,9 +13,9 @@ class SimulatedAnnealing:
         self.init = init
         self.initializer = None
         self.plot = plot
-        if self.init == 'random':
+        if self.init == "random":
             self.initializer = RandomInitializer(self.graph, 1)
-        elif self.init == 'nearest':
+        elif self.init == "nearest":
             self.initializer = NearestNeighbor(self.graph, 1)
 
         self.solution = self.initializer.get_init()[0]

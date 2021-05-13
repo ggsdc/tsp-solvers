@@ -1,6 +1,7 @@
 import random
 import copy
 
+
 class NearestNeighbor:
     def __init__(self, graph, population):
         self.graph = graph
@@ -29,4 +30,3 @@ class NearestNeighbor:
             random_paths.append(random_list)
 
         return random_paths
-

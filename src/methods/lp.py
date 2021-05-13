@@ -7,8 +7,12 @@ class LinearIntegerProgram:
     def __init__(self, graph, max_time, plot=False):
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
-        self.v01Travels = LpVariable.dicts("Travel", ((edge[0], edge[1]) for edge in self.graph.edges), cat="Binary")
-        self.vOneTour = LpVariable.dicts("Aux", (v for v in self.graph.vertices), cat="Integer")
+        self.v01Travels = LpVariable.dicts(
+            "Travel", ((edge[0], edge[1]) for edge in self.graph.edges), cat="Binary"
+        )
+        self.vOneTour = LpVariable.dicts(
+            "Aux", (v for v in self.graph.vertices), cat="Integer"
+        )
         self.vertice_list = list(self.graph.vertices)
         self.temp_solution = list()
         self.solution = list()
@@ -20,26 +24,44 @@ class LinearIntegerProgram:
     def build_model(self):
 
         for v in self.graph.vertices:
-            self.model += lpSum(self.v01Travels[v, x] for x in self.graph.vertices if x != v) == 1
-            self.model += lpSum(self.v01Travels[x, v] for x in self.graph.vertices if x != v) == 1
+            self.model += (
+                lpSum(self.v01Travels[v, x] for x in self.graph.vertices if x != v) == 1
+            )
+            self.model += (
+                lpSum(self.v01Travels[x, v] for x in self.graph.vertices if x != v) == 1
+            )
 
         for i in self.vertice_list:
             for j in self.vertice_list:
                 if i != j and i != self.vertice_list[0] and j != self.vertice_list[0]:
-                    self.model += self.vOneTour[i] - self.vOneTour[j] + self.graph.number_vertices * self.v01Travels[
-                        i, j] <= self.graph.number_vertices - 1
+                    self.model += (
+                        self.vOneTour[i]
+                        - self.vOneTour[j]
+                        + self.graph.number_vertices * self.v01Travels[i, j]
+                        <= self.graph.number_vertices - 1
+                    )
 
         for i in self.vertice_list:
             if i != self.vertice_list[0]:
                 self.model += self.vOneTour[i] <= self.graph.number_vertices - 1
 
         self.model += lpSum(
-            self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost for edge in self.graph.edges)
+            self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost
+            for edge in self.graph.edges
+        )
 
     def run(self):
         start = datetime.datetime.utcnow()
         self.model.solve(
-            GUROBI_CMD(msg=0, options=[('TimeLimit', self.max_time), ('MIPGap', 0.05), ('MIPGapAbs', 0.05)]))
+            GUROBI_CMD(
+                msg=0,
+                options=[
+                    ("TimeLimit", self.max_time),
+                    ("MIPGap", 0.05),
+                    ("MIPGapAbs", 0.05),
+                ],
+            )
+        )
         # self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
 
         print(self.model.status)
@@ -73,10 +95,15 @@ class LinearIntegerProgram:
             self.cost = self.graph.get_cost(self.solution)
 
             if self.plot:
-                filename = "plots/lp_" + str(self.graph.number_vertices) + '.png'
-                title = "Mathematical optimization " + '\n Solution cost: ' + str(
-                    round(self.cost, 2))
-                self.graph.plot_solution(self.solution, pheromones=False, filename=filename, title=title)
+                filename = "plots/lp_" + str(self.graph.number_vertices) + ".png"
+                title = (
+                    "Mathematical optimization "
+                    + "\n Solution cost: "
+                    + str(round(self.cost, 2))
+                )
+                self.graph.plot_solution(
+                    self.solution, pheromones=False, filename=filename, title=title
+                )
 
         else:
             self.cost = float("-inf")
@@ -88,7 +115,13 @@ class LinearIntegerProgram:
         print("Best solution: " + str(self.solution) + "\t|\tcost: " + str(self.cost))
 
     def save(self, file):
-        text = 'LP. Best solution: ' + str(self.solution) + "\t|\tCost: " + str(self.cost) + '\n'
+        text = (
+            "LP. Best solution: "
+            + str(self.solution)
+            + "\t|\tCost: "
+            + str(self.cost)
+            + "\n"
+        )
         with open(file, "a") as myfile:
             myfile.write(text)
 

@@ -19,7 +19,11 @@ class Individual:
     def random_sub_solution(self):
         start = random.randrange(0, self.number_vertices)
         end = start
-        while end == start or abs(end - start) == 1 or abs(end - start) == len(self.genes) - 1:
+        while (
+            end == start
+            or abs(end - start) == 1
+            or abs(end - start) == len(self.genes) - 1
+        ):
             end = random.randrange(0, self.number_vertices)
         if start > end:
             start, end = end, start
@@ -31,7 +35,7 @@ class Individual:
 
     def insert_sub_solution(self, sub_solution, x):
         if x != -1:
-            self.genes = self.genes[:x + 1] + sub_solution + self.genes[x + 1:]
+            self.genes = self.genes[: x + 1] + sub_solution + self.genes[x + 1 :]
         else:
             self.genes = self.genes + sub_solution
 
@@ -50,12 +54,17 @@ class Individual:
 
 
 class GeneticAlgorithm:
-
-    def __init__(self, graph, max_generations, population_size, mutation_probability, max_time, init="random",
-                 plot=False):
-        """
-
-        """
+    def __init__(
+        self,
+        graph,
+        max_generations,
+        population_size,
+        mutation_probability,
+        max_time,
+        init="random",
+        plot=False,
+    ):
+        """ """
         self.individuals = list()
         self.graph = graph
         self.max_generations = max_generations
@@ -80,7 +89,9 @@ class GeneticAlgorithm:
         solutions = self.initializer.get_init()
 
         for solution in solutions:
-            individual = Individual(genes=solution, cost=self.graph.get_cost(solution), idx=self.id)
+            individual = Individual(
+                genes=solution, cost=self.graph.get_cost(solution), idx=self.id
+            )
             self.id += 1
             self.individuals.append(individual)
 
@@ -90,7 +101,7 @@ class GeneticAlgorithm:
             if individual.cost < best.cost:
                 best = individual
         print("\nGA:")
-        print('Best solution: ', str(best.genes), "\t|\tcost: ", str(best.cost))
+        print("Best solution: ", str(best.genes), "\t|\tcost: ", str(best.cost))
 
     def update_best(self):
         for individual in self.individuals:
@@ -101,20 +112,24 @@ class GeneticAlgorithm:
     def best_insertion(self, child, sub_solution):
         start = sub_solution[0]
         end = sub_solution[1]
-        best_payoff = float('-inf')
+        best_payoff = float("-inf")
         j = 0
         for i in range(0, len(child.genes) - 1):
-            payoff = self.graph.edges[(child.genes[i], child.genes[i + 1])].cost - \
-                     self.graph.edges[(child.genes[i], start)].cost - \
-                     self.graph.edges[(end, child.genes[i + 1])].cost
+            payoff = (
+                self.graph.edges[(child.genes[i], child.genes[i + 1])].cost
+                - self.graph.edges[(child.genes[i], start)].cost
+                - self.graph.edges[(end, child.genes[i + 1])].cost
+            )
 
             if payoff > best_payoff:
                 best_payoff = payoff
                 j = i
 
-        payoff = self.graph.edges[(child.genes[-1], child.genes[0])].cost \
-                 - self.graph.edges[(child.genes[-1], start)].cost \
-                 - self.graph.edges[(end, child.genes[0])].cost
+        payoff = (
+            self.graph.edges[(child.genes[-1], child.genes[0])].cost
+            - self.graph.edges[(child.genes[-1], start)].cost
+            - self.graph.edges[(end, child.genes[0])].cost
+        )
 
         if payoff > best_payoff:
             best_payoff = payoff
@@ -172,7 +187,7 @@ class GeneticAlgorithm:
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
         if min_cost * 1.01 > mean_cost:
-            print('BREAK')
+            print("BREAK")
             return True
         else:
             return False
@@ -180,7 +195,7 @@ class GeneticAlgorithm:
     def run(self):
         start = datetime.datetime.utcnow()
         frac = 0.1
-        plot = [10 * x for x in range(1, self.max_generations//10 + 1)]
+        plot = [10 * x for x in range(1, self.max_generations // 10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
             if i / self.max_generations >= frac:
@@ -199,10 +214,25 @@ class GeneticAlgorithm:
 
             if self.plot:
                 if (i + 1) in plot:
-                    filename = "plots/ga_" + str(self.graph.number_vertices) + '_' + str(i + 1) + '.png'
-                    title = "Genetic algorithm. Iteration " + str(i + 1) + '\n Solution cost: ' + \
-                            str(round(self.best_cost, 2))
-                    self.graph.plot_solution(self.best_genes, pheromones=False, filename=filename, title=title)
+                    filename = (
+                        "plots/ga_"
+                        + str(self.graph.number_vertices)
+                        + "_"
+                        + str(i + 1)
+                        + ".png"
+                    )
+                    title = (
+                        "Genetic algorithm. Iteration "
+                        + str(i + 1)
+                        + "\n Solution cost: "
+                        + str(round(self.best_cost, 2))
+                    )
+                    self.graph.plot_solution(
+                        self.best_genes,
+                        pheromones=False,
+                        filename=filename,
+                        title=title,
+                    )
 
             # self.get_best()
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
@@ -211,18 +241,30 @@ class GeneticAlgorithm:
         self.time = datetime.datetime.utcnow() - start
 
         # print('FINISHED')
+
     def show(self):
         print("\nSOLUTION:")
-        print("Individuals: " + str(self.population_size) + ". Iterations: " + str(self.max_generations))
+        print(
+            "Individuals: "
+            + str(self.population_size)
+            + ". Iterations: "
+            + str(self.max_generations)
+        )
         for ind in self.individuals:
-            print('Best solution: %s\t|\tcost: %d' % (str(ind.genes), ind.cost))
+            print("Best solution: %s\t|\tcost: %d" % (str(ind.genes), ind.cost))
 
     def save(self, file):
         best = self.individuals[0]
         for individual in self.individuals:
             if individual.cost < best.cost:
                 best = individual
-        text = 'GA. Best solution: ' + str(best.genes) + "\t|\tCost: " + str(best.cost) + '\n'
+        text = (
+            "GA. Best solution: "
+            + str(best.genes)
+            + "\t|\tCost: "
+            + str(best.cost)
+            + "\n"
+        )
         with open(file, "a") as myfile:
             myfile.write(text)
 

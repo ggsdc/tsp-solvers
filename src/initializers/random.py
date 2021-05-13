@@ -15,4 +15,3 @@ class RandomInitializer:
             random_paths.append(random_list)
 
         return random_paths
-

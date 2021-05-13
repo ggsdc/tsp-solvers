@@ -6,7 +6,6 @@ from ..initializers import NearestNeighbor, RandomInitializer
 
 
 class Particle:
-
     def __init__(self, solution, cost):
         self.solution = solution
         self.cost = cost
@@ -20,7 +19,17 @@ class Particle:
 
 
 class ParticleSwarmOptimization:
-    def __init__(self, graph, iterations, population_size, alpha=1, beta=1, max_time=60, init='random', plot=False):
+    def __init__(
+        self,
+        graph,
+        iterations,
+        population_size,
+        alpha=1,
+        beta=1,
+        max_time=60,
+        init="random",
+        plot=False,
+    ):
         self.graph = graph
         self.iterations = iterations
         self.population_size = population_size
@@ -34,9 +43,9 @@ class ParticleSwarmOptimization:
         self.init = init
         self.initializer = None
 
-        if self.init == 'random':
+        if self.init == "random":
             self.initializer = RandomInitializer(self.graph, self.population_size)
-        elif self.init == 'nearest':
+        elif self.init == "nearest":
             self.initializer = NearestNeighbor(self.graph, self.population_size)
 
         solutions = self.initializer.get_init()
@@ -52,22 +61,30 @@ class ParticleSwarmOptimization:
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-        print('\nPSO:')
-        print('Best solution: ', str(best.solution), '\t|\tcost: ', str(best.cost))
+        print("\nPSO:")
+        print("Best solution: ", str(best.solution), "\t|\tcost: ", str(best.cost))
 
     def show(self):
-        print('\nSOLUTION:')
-        print('Particles: ' + str(self.size_population) + '. Iterations: ' + str(self.iterations))
+        print("\nSOLUTION:")
+        print(
+            "Particles: "
+            + str(self.size_population)
+            + ". Iterations: "
+            + str(self.iterations)
+        )
         for particle in self.particles:
-            print('Best solution: %s\t|\tcost: %d' % (str(particle.best_solution), particle.best_cost))
+            print(
+                "Best solution: %s\t|\tcost: %d"
+                % (str(particle.best_solution), particle.best_cost)
+            )
 
     def evaluate(self):
         costs = [i.cost for i in self.particles]
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
 
-        if min_cost*1.01 > mean_cost:
-            print('BREAK')
+        if min_cost * 1.01 > mean_cost:
+            print("BREAK")
             return True
         else:
             return False
@@ -75,12 +92,12 @@ class ParticleSwarmOptimization:
     def run(self):
         start = datetime.datetime.utcnow()
         frac = 0.1
-        plot_interval = [10 * x for x in range(1, self.iterations//10 + 1)]
+        plot_interval = [10 * x for x in range(1, self.iterations // 10 + 1)]
         initial_time = datetime.datetime.utcnow()
 
         for i in range(self.iterations):
             if i / self.iterations >= frac:
-                print('Iteration ', str(i), ' of ', str(self.iterations))
+                print("Iteration ", str(i), " of ", str(self.iterations))
                 frac += 0.1
 
             if i >= self.iterations // 5:
@@ -98,7 +115,11 @@ class ParticleSwarmOptimization:
 
                 for v in range(self.graph.number_vertices):
                     if solution_particle[v] != best_particle[v]:
-                        swap = (v, best_particle.index(solution_particle[v]), self.alpha)
+                        swap = (
+                            v,
+                            best_particle.index(solution_particle[v]),
+                            self.alpha,
+                        )
 
                         temp_velocity.append(swap)
 
@@ -108,7 +129,11 @@ class ParticleSwarmOptimization:
 
                 for v in range(self.graph.number_vertices):
                     if solution_particle[v] != best_population[v]:
-                        swap = (v, best_population.index(solution_particle[v]), self.beta)
+                        swap = (
+                            v,
+                            best_population.index(solution_particle[v]),
+                            self.beta,
+                        )
 
                         temp_velocity.append(swap)
 
@@ -134,10 +159,23 @@ class ParticleSwarmOptimization:
                     particle.best_solution = solution_particle
 
             if self.plot:
-                if (i+1) in plot_interval:
-                    filename = 'plots/pso_' + str(self.graph.number_vertices) + '_' + str(i+1) + '.png'
-                    title = 'Particle Swarm Optimization. Iteration ' + str(i+1) + '\n Solution cost: ' + str(round(particle.best_cost, 2))
-                    self.graph.plot_solution(particle.best_solution, filename=filename, title=title)
+                if (i + 1) in plot_interval:
+                    filename = (
+                        "plots/pso_"
+                        + str(self.graph.number_vertices)
+                        + "_"
+                        + str(i + 1)
+                        + ".png"
+                    )
+                    title = (
+                        "Particle Swarm Optimization. Iteration "
+                        + str(i + 1)
+                        + "\n Solution cost: "
+                        + str(round(particle.best_cost, 2))
+                    )
+                    self.graph.plot_solution(
+                        particle.best_solution, filename=filename, title=title
+                    )
 
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
@@ -149,8 +187,14 @@ class ParticleSwarmOptimization:
         for particle in self.particles:
             if particle.cost < best.cost:
                 best = particle
-        text = 'PSO. Best solution: ' + str(best.solution) + '\t|\tCost: ' + str(best.cost) + '\n'
-        with open(file, 'a') as myfile:
+        text = (
+            "PSO. Best solution: "
+            + str(best.solution)
+            + "\t|\tCost: "
+            + str(best.cost)
+            + "\n"
+        )
+        with open(file, "a") as myfile:
             myfile.write(text)
 
     def get_time(self):

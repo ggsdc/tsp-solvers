@@ -5,28 +5,33 @@ from ..initializers import NearestNeighbor, RandomInitializer
 
 
 class TwoOpt:
-
-    def __init__(self, graph, max_time, init='random', plot=False):
+    def __init__(self, graph, max_time, init="random", plot=False):
         self.graph = graph
         self.max_time = max_time
         self.init = init
         self.plot = plot
         self.initializer = None
-        self.cost = float('Inf')
+        self.cost = float("Inf")
         self.count = 0
         self.time = None
-        if self.init == 'random':
+        if self.init == "random":
             self.initializer = RandomInitializer(self.graph, 1)
-        elif self.init == 'nearest':
+        elif self.init == "nearest":
             self.initializer = NearestNeighbor(self.graph, 1)
 
         self.solution = self.initializer.get_init()[0]
         self.cost = self.graph.get_cost(self.solution)
 
     def get_best(self):
-        print('\nTwo opt:')
-        print('Best solution: ', str(self.solution), '\t|\tCost: ', str(round(self.cost, 2)), '\t|\t Swaps: ',
-              str(self.count))
+        print("\nTwo opt:")
+        print(
+            "Best solution: ",
+            str(self.solution),
+            "\t|\tCost: ",
+            str(round(self.cost, 2)),
+            "\t|\t Swaps: ",
+            str(self.count),
+        )
 
     def run(self):
         initial_time = datetime.datetime.utcnow()
@@ -103,9 +108,16 @@ class TwoOpt:
                 break
 
     def save(self, file):
-        text = 'Two-Opt. Best solution: ' + str(self.solution) + '\t|\tCost: ' + str(self.cost) +\
-               '\t|\tSwaps: ' + str(self.count) + '\n'
-        with open(file, 'a') as myfile:
+        text = (
+            "Two-Opt. Best solution: "
+            + str(self.solution)
+            + "\t|\tCost: "
+            + str(self.cost)
+            + "\t|\tSwaps: "
+            + str(self.count)
+            + "\n"
+        )
+        with open(file, "a") as myfile:
             myfile.write(text)
 
     def get_time(self):

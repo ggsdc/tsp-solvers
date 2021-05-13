@@ -1,5 +1,11 @@
-from src.methods import AntColonyOptimization, GeneticAlgorithm, Graph, LinearIntegerProgram,\
-    ParticleSwarmOptimization, TwoOpt
+from src.methods import (
+    AntColonyOptimization,
+    GeneticAlgorithm,
+    Graph,
+    LinearIntegerProgram,
+    ParticleSwarmOptimization,
+    TwoOpt,
+)
 
 sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
 times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
@@ -22,16 +28,33 @@ for i in range(len(sizes)):
     # graph.plot()
     # graph.show()
 
-    pso = ParticleSwarmOptimization(graph, iterations=num_iterations, population_size=population_size, alpha=0.7,
-                                    beta=0.7, max_time=max_time, init="nearest")
+    pso = ParticleSwarmOptimization(
+        graph,
+        iterations=num_iterations,
+        population_size=population_size,
+        alpha=0.7,
+        beta=0.7,
+        max_time=max_time,
+        init="nearest",
+    )
     pso.run()
 
-    acs = AntColonyOptimization(graph=graph, iterations=num_iterations, population_size=population_size,
-                                max_time=max_time)
+    acs = AntColonyOptimization(
+        graph=graph,
+        iterations=num_iterations,
+        population_size=population_size,
+        max_time=max_time,
+    )
     acs.run()
 
-    ga = GeneticAlgorithm(graph=graph, max_generations=num_iterations, population_size=population_size,
-                          mutation_probability=0.1, init="nearest", max_time=max_time)
+    ga = GeneticAlgorithm(
+        graph=graph,
+        max_generations=num_iterations,
+        population_size=population_size,
+        mutation_probability=0.1,
+        init="nearest",
+        max_time=max_time,
+    )
     ga.run()
 
     lp = LinearIntegerProgram(graph=graph, max_time=max_time)
@@ -41,21 +64,21 @@ for i in range(len(sizes)):
     two_opt = TwoOpt(graph, max_time=max_time, init="random")
     two_opt.run()
 
-    print('PSO time: ', pso.get_time())
-    print('ACO time: ', acs.get_time())
-    print('GA time: ', ga.get_time())
-    print('LP time: ', lp.get_time())
-    print('Two opt time: ', two_opt.get_time())
+    print("PSO time: ", pso.get_time())
+    print("ACO time: ", acs.get_time())
+    print("GA time: ", ga.get_time())
+    print("LP time: ", lp.get_time())
+    print("Two opt time: ", two_opt.get_time())
     pso.get_best()
     acs.get_best()
     ga.get_best()
     lp.show()
     two_opt.get_best()
 
-    file = 'test.txt'
-    text = 'Graph: ' + str(size) + ' nodes\n'
+    file = "test.txt"
+    text = "Graph: " + str(size) + " nodes\n"
     with open(file, "a") as myfile:
-        myfile.write('-----------------------------\n')
+        myfile.write("-----------------------------\n")
         myfile.write(text)
         myfile.close()
 

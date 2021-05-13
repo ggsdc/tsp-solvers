@@ -33,14 +33,27 @@ class Graph:
             self.edges[(origin, destination)] = Edge(origin, destination, cost, 0)
 
     def calculate_distance(self, origin, destination):
-        distance = sqrt(pow(self.vertices_coordinates[origin][0] - self.vertices_coordinates[destination][0], 2) +
-                        pow(self.vertices_coordinates[origin][1] - self.vertices_coordinates[destination][1], 2))
+        distance = sqrt(
+            pow(
+                self.vertices_coordinates[origin][0]
+                - self.vertices_coordinates[destination][0],
+                2,
+            )
+            + pow(
+                self.vertices_coordinates[origin][1]
+                - self.vertices_coordinates[destination][1],
+                2,
+            )
+        )
         return distance
 
     def show(self):
-        print('GRAPH:\n')
+        print("GRAPH:\n")
         for edge in self.edges:
-            print('%d linked with %d with cost %d' % (edge[0], edge[1], self.edges[edge].cost))
+            print(
+                "%d linked with %d with cost %d"
+                % (edge[0], edge[1], self.edges[edge].cost)
+            )
 
     def plot(self):
         plt.close()
@@ -61,21 +74,51 @@ class Graph:
                 if max_pheromone < self.edges[i].pheromone:
                     max_pheromone = self.edges[i].pheromone
 
-            pheromone_dict = {key: 0.0 + (self.edges[key].pheromone - min_pheromone) * 0.4 / (max_pheromone - min_pheromone) for key in self.edges}
+            pheromone_dict = {
+                key: 0.0
+                + (self.edges[key].pheromone - min_pheromone)
+                * 0.4
+                / (max_pheromone - min_pheromone)
+                for key in self.edges
+            }
 
             for i in pheromone_dict:
-                x_values = [self.vertices_coordinates[i[0]][0], self.vertices_coordinates[i[1]][0]]
-                y_values = [self.vertices_coordinates[i[0]][1], self.vertices_coordinates[i[1]][1]]
-                plt.plot(x_values, y_values, c="#FF0000", alpha=pheromone_dict[i], linewidth=3)
+                x_values = [
+                    self.vertices_coordinates[i[0]][0],
+                    self.vertices_coordinates[i[1]][0],
+                ]
+                y_values = [
+                    self.vertices_coordinates[i[0]][1],
+                    self.vertices_coordinates[i[1]][1],
+                ]
+                plt.plot(
+                    x_values,
+                    y_values,
+                    c="#FF0000",
+                    alpha=pheromone_dict[i],
+                    linewidth=3,
+                )
 
         plt.scatter(self.x_coordinates, self.y_coordinates, c="#000000")
         for i in range(self.number_vertices - 1):
-            x_values = [self.vertices_coordinates[path[i]][0], self.vertices_coordinates[path[i+1]][0]]
-            y_values = [self.vertices_coordinates[path[i]][1], self.vertices_coordinates[path[i+1]][1]]
+            x_values = [
+                self.vertices_coordinates[path[i]][0],
+                self.vertices_coordinates[path[i + 1]][0],
+            ]
+            y_values = [
+                self.vertices_coordinates[path[i]][1],
+                self.vertices_coordinates[path[i + 1]][1],
+            ]
             plt.plot(x_values, y_values, c="#000000")
 
-        x_values = [self.vertices_coordinates[path[self.number_vertices - 1]][0], self.vertices_coordinates[path[0]][0]]
-        y_values = [self.vertices_coordinates[path[self.number_vertices - 1]][1], self.vertices_coordinates[path[0]][1]]
+        x_values = [
+            self.vertices_coordinates[path[self.number_vertices - 1]][0],
+            self.vertices_coordinates[path[0]][0],
+        ]
+        y_values = [
+            self.vertices_coordinates[path[self.number_vertices - 1]][1],
+            self.vertices_coordinates[path[0]][1],
+        ]
         plt.plot(x_values, y_values, c="#000000")
 
         plt.title(title)
@@ -87,12 +130,15 @@ class Graph:
             self.vertices.add(i)
             new = True
             while new:
-                x = random.randint(0, self.number_vertices*2)
-                y = random.randint(0, self.number_vertices*2)
+                x = random.randint(0, self.number_vertices * 2)
+                y = random.randint(0, self.number_vertices * 2)
                 repeat = False
 
                 for j in self.vertices_coordinates:
-                    if self.vertices_coordinates[j][0] == x and self.vertices_coordinates[j][1] == y:
+                    if (
+                        self.vertices_coordinates[j][0] == x
+                        and self.vertices_coordinates[j][1] == y
+                    ):
                         repeat = True
                         break
 
@@ -108,8 +154,12 @@ class Graph:
                     self.add_edge(i, j, cost)
                     self.add_edge(j, i, cost)
 
-        self.x_coordinates = [self.vertices_coordinates[i][0] for i in self.vertices_coordinates]
-        self.y_coordinates = [self.vertices_coordinates[i][1] for i in self.vertices_coordinates]
+        self.x_coordinates = [
+            self.vertices_coordinates[i][0] for i in self.vertices_coordinates
+        ]
+        self.y_coordinates = [
+            self.vertices_coordinates[i][1] for i in self.vertices_coordinates
+        ]
 
     def get_random_path(self, size):
         random_paths = []
@@ -131,4 +181,3 @@ class Graph:
 
     def update_pheromone(self, edge, pheromone):
         self.edges[edge].pheromone = pheromone
-
