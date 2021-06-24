@@ -1,3 +1,5 @@
+import sys
+
 from ..initializers import RandomInitializer, NearestNeighbor
 
 
@@ -13,6 +15,12 @@ class SimulatedAnnealing:
         self.init = init
         self.initializer = None
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
+
         if self.init == "random":
             self.initializer = RandomInitializer(self.graph, 1)
         elif self.init == "nearest":

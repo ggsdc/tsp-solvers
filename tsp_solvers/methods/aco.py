@@ -1,6 +1,12 @@
+"""
+
+"""
+
+# Import from libraries
 import datetime
 import math
 import random
+import sys
 from itertools import accumulate
 
 
@@ -89,6 +95,12 @@ class AntColonyOptimization:
         self.number_vertices = self.graph.number_vertices
         self.max_time = max_time
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
+
         self.time = None
 
         for edge in self.graph.edges:

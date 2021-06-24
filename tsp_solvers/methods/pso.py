@@ -1,7 +1,7 @@
 import copy
 import datetime
 import random
-
+import sys
 from ..initializers import NearestNeighbor, RandomInitializer
 
 
@@ -40,6 +40,11 @@ class ParticleSwarmOptimization:
         self.max_time = max_time
         self.time = None
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
         self.init = init
         self.initializer = None
 

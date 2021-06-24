@@ -1,7 +1,14 @@
+"""
+
+"""
+
+# Import from libraries
 import copy
 import datetime
 import random
+import sys
 
+# Import from internal modules
 from ..initializers import NearestNeighbor, RandomInitializer
 
 
@@ -79,6 +86,11 @@ class GeneticAlgorithm:
         self.best_genes = None
         self.best_cost = float("inf")
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
         self.init = init
         self.initializer = None
         if self.init == "random":

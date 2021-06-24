@@ -1,5 +1,6 @@
 import copy
 import datetime
+import sys
 
 from ..initializers import NearestNeighbor, RandomInitializer
 
@@ -10,6 +11,12 @@ class TwoOpt:
         self.max_time = max_time
         self.init = init
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
+
         self.initializer = None
         self.cost = float("Inf")
         self.count = 0

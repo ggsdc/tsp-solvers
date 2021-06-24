@@ -1,4 +1,4 @@
-from src.methods import (
+from tsp_solvers import (
     AntColonyOptimization,
     GeneticAlgorithm,
     Graph,
@@ -7,15 +7,15 @@ from src.methods import (
     TwoOpt,
 )
 
-sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
-times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
-iterations = [1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000]
-population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
+# sizes = [5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000]
+# times = [3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600]
+# iterations = [1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000]
+# population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
 
-# sizes = [15]
-# times = [3600]
-# iterations = [1000]
-# population = [10]
+sizes = [15]
+times = [3600]
+iterations = [1000]
+population = [10]
 
 for i in range(len(sizes)):
     size = sizes[i]

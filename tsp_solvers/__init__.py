@@ -6,3 +6,5 @@ from tsp_solvers.methods import (
     SimulatedAnnealing,
     TwoOpt,
 )
+
+from tsp_solvers.graph import Graph

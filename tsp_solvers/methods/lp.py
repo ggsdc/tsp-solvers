@@ -1,4 +1,5 @@
 import datetime
+import sys
 
 from pulp import *
 
@@ -20,6 +21,11 @@ class LinearIntegerProgram:
         self.max_time = max_time
         self.time = None
         self.plot = plot
+        if self.plot:
+            if "matplotlib" not in sys.modules:
+                raise ModuleNotFoundError(
+                    "Matplotlib has to be installed to be able to plot!"
+                )
 
     def build_model(self):
 
@@ -62,7 +68,7 @@ class LinearIntegerProgram:
         #         ],
         #     )
         # )
-        self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
+        self.model.solve(PULP_CBC_CMD(msg=1, gapRel=0.05, timeLimit=self.max_time))
 
         print(self.model.status)
         if self.model.status == 1:

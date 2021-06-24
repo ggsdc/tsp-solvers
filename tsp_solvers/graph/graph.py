@@ -1,9 +1,16 @@
 import random
 from math import pow, sqrt
+import sys
 
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:
+    pass
 
-plt.ioff()
+try:
+    plt.ioff()
+except NameError:
+    pass
 
 
 class Edge:
@@ -62,7 +69,10 @@ class Graph:
         plt.show()
 
     def plot_solution(self, path, pheromones=False, filename="none.png", title=""):
-
+        if "matplotlib" not in sys.modules:
+            raise ModuleNotFoundError(
+                "Matplotlib has to be installed to be able to plot!"
+            )
         plt.close()
 
         if pheromones:
