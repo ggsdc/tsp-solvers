@@ -52,17 +52,17 @@ class LinearIntegerProgram:
 
     def run(self):
         start = datetime.datetime.utcnow()
-        self.model.solve(
-            GUROBI_CMD(
-                msg=0,
-                options=[
-                    ("TimeLimit", self.max_time),
-                    ("MIPGap", 0.05),
-                    ("MIPGapAbs", 0.05),
-                ],
-            )
-        )
-        # self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
+        # self.model.solve(
+        #     GUROBI_CMD(
+        #         msg=0,
+        #         options=[
+        #             ("TimeLimit", self.max_time),
+        #             ("MIPGap", 0.05),
+        #             ("MIPGapAbs", 0.05),
+        #         ],
+        #     )
+        # )
+        self.model.solve(PULP_CBC_CMD(msg=1, fracGap=0.05, maxSeconds=self.max_time))
 
         print(self.model.status)
         if self.model.status == 1:
