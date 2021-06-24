@@ -1,5 +1,6 @@
 import random
 from math import pow, sqrt
+
 import matplotlib.pyplot as plt
 
 plt.ioff()
