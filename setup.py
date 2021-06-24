@@ -1,8 +1,8 @@
 import setuptools
+import os
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
-
 
 with open("requirements.txt", "r") as fh:
     required = fh.read().splitlines()
@@ -16,7 +16,7 @@ extra_required["plot"].remove("-r requirements.txt")
 
 setuptools.setup(
     name="tsp-solvers",
-    version="0.0.1",
+    version="0.0.2",
     author="Guillermo González-Santander",
     author_email="g.gsantanderdelacruz@gmail.com",
     description="Set of different methods to solve the Travelling Salesman Problem. Each method has its own class",
