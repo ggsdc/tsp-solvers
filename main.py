@@ -1,3 +1,4 @@
+import json
 from tsp_solvers import (
     AntColonyOptimization,
     GeneticAlgorithm,
@@ -12,10 +13,13 @@ from tsp_solvers import (
 # iterations = [1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000]
 # population = [10, 10, 10, 10, 10, 10, 25, 25, 25, 50, 50, 50]
 
-sizes = [15]
-times = [3600]
-iterations = [1000]
+sizes = [100]
+times = [300]
+iterations = [500]
 population = [10]
+
+with open("./data/small_graph.json") as f:
+    data = json.load(f)
 
 for i in range(len(sizes)):
     size = sizes[i]
@@ -23,8 +27,9 @@ for i in range(len(sizes)):
     num_iterations = iterations[i]
     population_size = population[i]
 
-    graph = Graph(size)
-    graph.random_complete_graph()
+    graph = Graph(**data)
+    graph.create_graph_from_data()
+    graph.random_complete_graph(size)
     # graph.plot()
     # graph.show()
 
