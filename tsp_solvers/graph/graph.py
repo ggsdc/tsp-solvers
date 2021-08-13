@@ -2,6 +2,7 @@
 This file contains the Graph class that is used to represent the TSp problem.
 This graph is constructed from nodes and edges
 """
+# TODO: add more supported file types
 
 # Import from libraries
 import json
@@ -50,7 +51,7 @@ class Edge:
 
 class Vertex:
     def __init__(self, data):
-        self.idx = data.get("id")
+        self.idx = data.get("idx")
         self.x = data.get("x")
         self.y = data.get("y")
 
@@ -81,8 +82,6 @@ class Graph:
         self.data = None
 
         self.edges = dict()
-        self.vertices = set()
-        self.vertices_coordinates = dict()
 
         self.number_vertices = None
         self.edges_collection = list()
@@ -111,17 +110,13 @@ class Graph:
         )
         return distance
 
-    def show(self):
-        print("GRAPH:\n")
-        for edge in self.edges:
-            print(
-                "%d linked with %d with cost %d"
-                % (edge[0], edge[1], self.edges[edge].cost)
-            )
-
     def plot(self):
         x_coord = [vertex.x for vertex in self.vertex_collection]
         y_coord = [vertex.y for vertex in self.vertex_collection]
+        if "matplotlib" not in sys.modules:
+            raise ModuleNotFoundError(
+                "Matplotlib has to be installed to be able to plot!"
+            )
         plt.close()
         plt.scatter(x_coord, y_coord, c="#000000")
         plt.show()
@@ -133,60 +128,56 @@ class Graph:
             )
         plt.close()
 
-        if pheromones:
-            min_pheromone = 100
-            max_pheromone = 0
-            for i in self.edges:
-                if min_pheromone > self.edges[i].pheromone:
-                    min_pheromone = self.edges[i].pheromone
+        # if pheromones:
+        #     min_pheromone = 100
+        #     max_pheromone = 0
+        #     for i in self.edges:
+        #         if min_pheromone > self.edges[i].pheromone:
+        #             min_pheromone = self.edges[i].pheromone
+        #
+        #         if max_pheromone < self.edges[i].pheromone:
+        #             max_pheromone = self.edges[i].pheromone
+        #
+        #     pheromone_dict = {
+        #         key: 0.0
+        #         + (self.edges[key].pheromone - min_pheromone)
+        #         * 0.4
+        #         / (max_pheromone - min_pheromone)
+        #         for key in self.edges
+        #     }
+        #
+        #     for i in pheromone_dict:
+        #         x_values = [
+        #             self.vertices_coordinates[i[0]][0],
+        #             self.vertices_coordinates[i[1]][0],
+        #         ]
+        #         y_values = [
+        #             self.vertices_coordinates[i[0]][1],
+        #             self.vertices_coordinates[i[1]][1],
+        #         ]
+        #         plt.plot(
+        #             x_values,
+        #             y_values,
+        #             c="#FF0000",
+        #             alpha=pheromone_dict[i],
+        #             linewidth=3,
+        #         )
 
-                if max_pheromone < self.edges[i].pheromone:
-                    max_pheromone = self.edges[i].pheromone
-
-            pheromone_dict = {
-                key: 0.0
-                + (self.edges[key].pheromone - min_pheromone)
-                * 0.4
-                / (max_pheromone - min_pheromone)
-                for key in self.edges
-            }
-
-            for i in pheromone_dict:
-                x_values = [
-                    self.vertices_coordinates[i[0]][0],
-                    self.vertices_coordinates[i[1]][0],
-                ]
-                y_values = [
-                    self.vertices_coordinates[i[0]][1],
-                    self.vertices_coordinates[i[1]][1],
-                ]
-                plt.plot(
-                    x_values,
-                    y_values,
-                    c="#FF0000",
-                    alpha=pheromone_dict[i],
-                    linewidth=3,
-                )
-
-        plt.scatter(self.x_coordinates, self.y_coordinates, c="#000000")
+        x_coord = [vertex.x for vertex in self.vertex_collection]
+        y_coord = [vertex.y for vertex in self.vertex_collection]
+        plt.scatter(x_coord, y_coord, c="#000000")
         for i in range(self.number_vertices - 1):
-            x_values = [
-                self.vertices_coordinates[path[i]][0],
-                self.vertices_coordinates[path[i + 1]][0],
-            ]
-            y_values = [
-                self.vertices_coordinates[path[i]][1],
-                self.vertices_coordinates[path[i + 1]][1],
-            ]
+            x_values = [self.vertex_collection[i].x, self.vertex_collection[i + 1].x]
+            y_values = [self.vertex_collection[i].y, self.vertex_collection[i + 1].y]
             plt.plot(x_values, y_values, c="#000000")
 
         x_values = [
-            self.vertices_coordinates[path[self.number_vertices - 1]][0],
-            self.vertices_coordinates[path[0]][0],
+            self.vertex_collection[self.number_vertices - 1].x,
+            self.vertex_collection[0].x,
         ]
         y_values = [
-            self.vertices_coordinates[path[self.number_vertices - 1]][1],
-            self.vertices_coordinates[path[0]][1],
+            self.vertex_collection[self.number_vertices - 1].yº,
+            self.vertex_collection[0].y,
         ]
         plt.plot(x_values, y_values, c="#000000")
 
@@ -200,7 +191,7 @@ class Graph:
             new = True
             while new:
                 temp = {
-                    "id": i,
+                    "idx": i,
                     "x": random.randint(0, self.number_vertices * 2),
                     "y": random.randint(0, self.number_vertices * 2),
                 }
@@ -213,13 +204,14 @@ class Graph:
                 if not repeat:
                     new = False
             self.vertex_collection.append(Vertex(temp))
-
-        for i in self.vertex_collection:
-            for j in self.vertex_collection:
-                if i < j:
-                    cost = self.calculate_cost(i, j)
-                    self.add_edge(i, j, cost)
-                    self.add_edge(j, i, cost)
+            print("Added node: " + str(i + 1))
+        #
+        # for i in self.vertex_collection:
+        #     for j in self.vertex_collection:
+        #         if i < j:
+        #             cost = self.calculate_cost(i, j)
+        #             self.add_edge(i, j, cost)
+        #             self.add_edge(j, i, cost)
 
     def create_graph_from_json(self, path: str):
         # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
@@ -231,17 +223,17 @@ class Graph:
         ]
 
         edges = self.data.get("edges", None)
-        if edges is None:
-            for i in self.vertex_collection:
-                for j in self.vertex_collection:
-                    if i < j:
-                        cost = self.calculate_cost(i, j)
-                        self.add_edge(i, j, cost)
-                        self.add_edge(j, i, cost)
-
-        else:
-            # TODO: implement if the json has edges
-            pass
+        # if edges is None:
+        #     for i in self.vertex_collection:
+        #         for j in self.vertex_collection:
+        #             if i < j:
+        #                 cost = self.calculate_cost(i, j)
+        #                 self.add_edge(i, j, cost)
+        #                 self.add_edge(j, i, cost)
+        #
+        # else:
+        #     # TODO: implement if the json has edges
+        #     pass
 
     def get_random_paths(self, size):
         random_paths = []
@@ -257,10 +249,16 @@ class Graph:
     def get_cost(self, path):
         total_cost = 0
         for i in range(self.number_vertices - 1):
-            total_cost = self.calculate_cost(path[i], path[i + 1])
+            total_cost += self.calculate_cost(path[i], path[i + 1])
 
         total_cost += self.calculate_cost(path[self.number_vertices - 1], path[0])
         return total_cost
 
     def update_pheromone(self, edge, pheromone):
         self.edges[edge].pheromone = pheromone
+
+    def save_graph_to_json(self, path):
+        with open(path, "w") as f:
+            json.dump(
+                {"vertices": [vertex.__dict__ for vertex in self.vertex_collection]}, f
+            )

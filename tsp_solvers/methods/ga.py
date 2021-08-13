@@ -9,7 +9,7 @@ import random
 import sys
 
 # Import from internal modules
-from ..initializers import NearestNeighbor, RandomInitializer
+from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
 
 
 class Individual:
@@ -128,9 +128,9 @@ class GeneticAlgorithm:
         j = 0
         for i in range(0, len(child.genes) - 1):
             payoff = (
-                self.graph.edges[(child.genes[i], child.genes[i + 1])].cost
-                - self.graph.edges[(child.genes[i], start)].cost
-                - self.graph.edges[(end, child.genes[i + 1])].cost
+                self.graph.calculate_cost(child.genes[i], child.genes[i + 1])
+                - self.graph.calculate_cost(child.genes[i], start)
+                - self.graph.calculate_cost(end, child.genes[i + 1])
             )
 
             if payoff > best_payoff:
@@ -138,9 +138,9 @@ class GeneticAlgorithm:
                 j = i
 
         payoff = (
-            self.graph.edges[(child.genes[-1], child.genes[0])].cost
-            - self.graph.edges[(child.genes[-1], start)].cost
-            - self.graph.edges[(end, child.genes[0])].cost
+            self.graph.calculate_cost(child.genes[-1], child.genes[0])
+            - self.graph.calculate_cost(child.genes[-1], start)
+            - self.graph.calculate_cost(end, child.genes[0])
         )
 
         if payoff > best_payoff:

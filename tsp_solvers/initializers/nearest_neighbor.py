@@ -9,7 +9,7 @@ class NearestNeighbor:
 
     def get_init(self):
         random_paths = []
-        list_vertices = list(self.graph.vertices)
+        list_vertices = self.graph.vertex_collection
 
         for _ in range(self.population):
             random_start = random.sample(list_vertices, 1)[0]
@@ -20,8 +20,8 @@ class NearestNeighbor:
                 min_dist = float("Inf")
                 next_node = None
                 for i in aux_list:
-                    if self.graph.edges[(random_list[-1], i)].cost < min_dist:
-                        min_dist = self.graph.edges[(random_list[-1], i)].cost
+                    if self.graph.calculate_cost(random_list[-1], i) < min_dist:
+                        min_dist = self.graph.calculate_cost(random_list[-1], i)
                         next_node = i
 
                 random_list.append(next_node)
