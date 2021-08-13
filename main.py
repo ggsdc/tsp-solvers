@@ -28,7 +28,7 @@ for i in range(len(sizes)):
     population_size = population[i]
 
     graph = Graph(**data)
-    graph.create_graph_from_data()
+    graph.create_graph_from_json()
     graph.random_complete_graph(size)
     # graph.plot()
     # graph.show()

@@ -1,8 +1,10 @@
 """
-
+This file contains the Graph class that is used to represent the TSp problem.
+This graph is constructed from nodes and edges
 """
 
 # Import from libraries
+import json
 import random
 import sys
 from math import pow, sqrt
@@ -33,7 +35,7 @@ class Edge:
         self.pheromone = pheromone
 
     def __hash__(self):
-        return hash((self.idx, self.origin, self.destination, self.cost))
+        return hash((self.origin, self.destination))
 
     def __eq__(self, other):
         if not isinstance(other, Edge):
@@ -71,31 +73,20 @@ class Vertex:
         return self.__hash__() <= other.__hash__()
 
     def __repr__(self):
-        return "ID: {}. x: {}. y: {}.".format(self.idx, self.x, self.y)
+        return "{}".format(self.idx)
 
 
 class Graph:
-    def __init__(self, **kwargs):
-        self.data = dict(kwargs)
-        # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
+    def __init__(self):
+        self.data = None
 
         self.edges = dict()
-        self.edges_collection = list()
         self.vertices = set()
-        self.vertex_collection = list()
         self.vertices_coordinates = dict()
+
         self.number_vertices = None
-        self.x_coordinates = list()
-        self.y_coordinates = list()
-
-        # TODO: if data is validated
-        # self.create_graph_from_data()
-
-    def edge_exists(self, origin, destination):
-        if (origin, destination) in self.edges.keys():
-            return True
-        else:
-            return False
+        self.edges_collection = list()
+        self.vertex_collection = list()
 
     def add_edge(self, vertex_1, vertex_2, cost=0.0):
         edge = Edge({"origin": vertex_1, "destination": vertex_2})
@@ -103,10 +94,10 @@ class Graph:
             if edge == created_edge:
                 return False
 
-        self.edges_collection.append(edge)
         edge.set_cost(cost)
+        self.edges_collection.append(edge)
 
-    def calculate_distance(self, vertex_1, vertex_2):
+    def calculate_cost(self, vertex_1, vertex_2):
 
         distance = sqrt(
             pow(
@@ -129,8 +120,10 @@ class Graph:
             )
 
     def plot(self):
+        x_coord = [vertex.x for vertex in self.vertex_collection]
+        y_coord = [vertex.y for vertex in self.vertex_collection]
         plt.close()
-        plt.scatter(self.x_coordinates, self.y_coordinates, c="#000000")
+        plt.scatter(x_coord, y_coord, c="#000000")
         plt.show()
 
     def plot_solution(self, path, pheromones=False, filename="none.png", title=""):
@@ -204,41 +197,34 @@ class Graph:
         self.number_vertices = size
 
         for i in range(self.number_vertices):
-            self.vertices.add(i)
             new = True
             while new:
-                x = random.randint(0, self.number_vertices * 2)
-                y = random.randint(0, self.number_vertices * 2)
+                temp = {
+                    "id": i,
+                    "x": random.randint(0, self.number_vertices * 2),
+                    "y": random.randint(0, self.number_vertices * 2),
+                }
+                temp_vertex = Vertex(temp)
                 repeat = False
-
-                for j in self.vertices_coordinates:
-                    if (
-                        self.vertices_coordinates[j][0] == x
-                        and self.vertices_coordinates[j][1] == y
-                    ):
+                for vertex in self.vertex_collection:
+                    if vertex == temp_vertex:
                         repeat = True
-                        break
 
                 if not repeat:
                     new = False
+            self.vertex_collection.append(Vertex(temp))
 
-            self.vertices_coordinates[i] = [x, y]
-
-        for i in self.vertices:
-            for j in self.vertices:
+        for i in self.vertex_collection:
+            for j in self.vertex_collection:
                 if i < j:
-                    cost = self.calculate_distance(i, j)
+                    cost = self.calculate_cost(i, j)
                     self.add_edge(i, j, cost)
                     self.add_edge(j, i, cost)
 
-        self.x_coordinates = [
-            self.vertices_coordinates[i][0] for i in self.vertices_coordinates
-        ]
-        self.y_coordinates = [
-            self.vertices_coordinates[i][1] for i in self.vertices_coordinates
-        ]
-
-    def create_graph_from_data(self):
+    def create_graph_from_json(self, path: str):
+        # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
+        with open(path) as f:
+            self.data = json.load(f)
         self.number_vertices = len(self.data.get("vertices"))
         self.vertex_collection = [
             Vertex(vertex) for vertex in self.data.get("vertices")
@@ -246,20 +232,24 @@ class Graph:
 
         edges = self.data.get("edges", None)
         if edges is None:
-
             for i in self.vertex_collection:
                 for j in self.vertex_collection:
                     if i < j:
-                        cost = self.calculate_distance(i, j)
+                        cost = self.calculate_cost(i, j)
                         self.add_edge(i, j, cost)
                         self.add_edge(j, i, cost)
 
-    def get_random_path(self, size):
+        else:
+            # TODO: implement if the json has edges
+            pass
+
+    def get_random_paths(self, size):
         random_paths = []
-        list_vertices = list(self.vertices)
 
         for i in range(size):
-            random_list = random.sample(list_vertices, len(list_vertices))
+            random_list = random.sample(
+                self.vertex_collection, len(self.vertex_collection)
+            )
             random_paths.append(random_list)
 
         return random_paths
@@ -267,9 +257,9 @@ class Graph:
     def get_cost(self, path):
         total_cost = 0
         for i in range(self.number_vertices - 1):
-            total_cost += self.edges[(path[i], path[i + 1])].cost
+            total_cost = self.calculate_cost(path[i], path[i + 1])
 
-        total_cost += self.edges[(path[self.number_vertices - 1], path[0])].cost
+        total_cost += self.calculate_cost(path[self.number_vertices - 1], path[0])
         return total_cost
 
     def update_pheromone(self, edge, pheromone):
