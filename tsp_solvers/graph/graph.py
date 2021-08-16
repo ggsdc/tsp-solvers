@@ -9,6 +9,7 @@ import json
 import random
 import sys
 from math import pow, sqrt
+import traceback
 
 # Matplotlib is not an required requirement
 try:
@@ -23,11 +24,11 @@ except NameError:
 
 class Edge:
     def __init__(self, data):
-        self.idx = data.get("idx", 0)
         self.origin = data.get("origin")
         self.destination = data.get("destination")
         self.cost = data.get("cost", 0)
         self.pheromone = data.get("pheromone", 0)
+        self._hash = self.__hash__()
 
     def set_cost(self, cost):
         self.cost = cost
@@ -36,16 +37,16 @@ class Edge:
         self.pheromone = pheromone
 
     def __hash__(self):
-        return hash((self.origin, self.destination))
+        return hash((self.origin.idx, self.destination.idx))
 
     def __eq__(self, other):
         if not isinstance(other, Edge):
             raise NotImplemented("The objects do not share the same class")
-        return self.__hash__() == other.__hash__()
+        return self._hash == other._hash
 
     def __repr__(self):
-        return "ID: {}. Origin: {}. Destination: {}. Cost: {}".format(
-            self.idx, self.origin, self.destination, self.cost
+        return "Origin: {}, Destination: {}, Cost: {}".format(
+            self.origin, self.destination, self.cost
         )
 
 
@@ -54,6 +55,7 @@ class Vertex:
         self.idx = data.get("idx")
         self.x = data.get("x")
         self.y = data.get("y")
+        self._hash = self.__hash__()
 
     def __hash__(self):
         return hash((self.idx, self.x, self.y))
@@ -61,17 +63,17 @@ class Vertex:
     def __eq__(self, other):
         if not isinstance(other, Vertex):
             raise NotImplemented("The objects do not share the same class")
-        return self.__hash__() == other.__hash__()
+        return self._hash == other._hash
 
     def __lt__(self, other):
         if not isinstance(other, Vertex):
             raise NotImplemented("The objects do not share the same class")
-        return self.__hash__() < other.__hash__()
+        return self._hash < other._hash
 
     def __le__(self, other):
         if not isinstance(other, Vertex):
             raise NotImplemented("The objects do not share the same class")
-        return self.__hash__() <= other.__hash__()
+        return self._hash <= other._hash
 
     def __repr__(self):
         return "{}".format(self.idx)
@@ -80,20 +82,21 @@ class Vertex:
 class Graph:
     def __init__(self):
         self.data = None
-
         self.edges = dict()
-
         self.number_vertices = None
         self.edges_collection = list()
+        self.edges_cost = dict()
         self.vertex_collection = list()
 
-    def add_edge(self, vertex_1, vertex_2, cost=0.0):
+    def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
         edge = Edge({"origin": vertex_1, "destination": vertex_2})
-        for created_edge in self.edges_collection:
-            if edge == created_edge:
-                return False
+        if check:
+            for created_edge in self.edges_collection:
+                if edge == created_edge:
+                    return False
 
         edge.set_cost(cost)
+        self.edges_cost[(vertex_1.idx, vertex_2.idx)] = cost
         self.edges_collection.append(edge)
 
     def calculate_cost(self, vertex_1, vertex_2):
@@ -203,15 +206,14 @@ class Graph:
 
                 if not repeat:
                     new = False
-            self.vertex_collection.append(Vertex(temp))
-            print("Added node: " + str(i + 1))
-        #
-        # for i in self.vertex_collection:
-        #     for j in self.vertex_collection:
-        #         if i < j:
-        #             cost = self.calculate_cost(i, j)
-        #             self.add_edge(i, j, cost)
-        #             self.add_edge(j, i, cost)
+            self.vertex_collection.append(temp_vertex)
+
+        for i in self.vertex_collection:
+            for j in self.vertex_collection:
+                if i < j:
+                    cost = self.calculate_cost(i, j)
+                    self.add_edge(i, j, cost)
+                    self.add_edge(j, i, cost)
 
     def create_graph_from_json(self, path: str):
         # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
@@ -223,17 +225,17 @@ class Graph:
         ]
 
         edges = self.data.get("edges", None)
-        # if edges is None:
-        #     for i in self.vertex_collection:
-        #         for j in self.vertex_collection:
-        #             if i < j:
-        #                 cost = self.calculate_cost(i, j)
-        #                 self.add_edge(i, j, cost)
-        #                 self.add_edge(j, i, cost)
-        #
-        # else:
-        #     # TODO: implement if the json has edges
-        #     pass
+        if edges is None:
+            for i in self.vertex_collection:
+                for j in self.vertex_collection:
+                    if i < j:
+                        cost = self.calculate_cost(i, j)
+                        self.add_edge(i, j, cost)
+                        self.add_edge(j, i, cost)
+
+        else:
+            # TODO: implement if the json has edges
+            pass
 
     def get_random_paths(self, size):
         random_paths = []
@@ -249,9 +251,9 @@ class Graph:
     def get_cost(self, path):
         total_cost = 0
         for i in range(self.number_vertices - 1):
-            total_cost += self.calculate_cost(path[i], path[i + 1])
+            total_cost += self.edges_cost[(path[i].idx, path[i + 1].idx)]
 
-        total_cost += self.calculate_cost(path[self.number_vertices - 1], path[0])
+        total_cost += self.edges_cost[(path[self.number_vertices - 1].idx, path[0].idx)]
         return total_cost
 
     def update_pheromone(self, edge, pheromone):

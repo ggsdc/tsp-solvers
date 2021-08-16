@@ -1,5 +1,4 @@
 import random
-import copy
 
 
 class NearestNeighbor:
@@ -13,15 +12,15 @@ class NearestNeighbor:
 
         for _ in range(self.population):
             random_start = random.sample(list_vertices, 1)[0]
-            aux_list = copy.copy(list_vertices)
+            aux_list = list(list_vertices)
             aux_list.remove(random_start)
             random_list = [random_start]
             while len(aux_list) > 0:
                 min_dist = float("Inf")
                 next_node = None
                 for i in aux_list:
-                    if self.graph.calculate_cost(random_list[-1], i) < min_dist:
-                        min_dist = self.graph.calculate_cost(random_list[-1], i)
+                    if self.graph.edges_cost[(random_list[-1].idx, i.idx)] < min_dist:
+                        min_dist = self.graph.edges_cost[(random_list[-1].idx, i.idx)]
                         next_node = i
 
                 random_list.append(next_node)
