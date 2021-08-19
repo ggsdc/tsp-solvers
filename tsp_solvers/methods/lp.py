@@ -9,12 +9,19 @@ class LinearIntegerProgram:
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
         self.v01Travels = LpVariable.dicts(
-            "Travel", ((edge[0], edge[1]) for edge in self.graph.edges), cat="Binary"
+            "Travel",
+            (
+                (vertex_1.idx, vertex_2.idx)
+                for vertex_1 in self.graph.vertex_collection
+                for vertex_2 in self.graph.vertex_collection
+                if vertex_1 != vertex_2
+            ),
+            cat="Binary",
         )
         self.vOneTour = LpVariable.dicts(
-            "Aux", (v for v in self.graph.vertices), cat="Integer"
+            "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
         )
-        self.vertice_list = list(self.graph.vertices)
+        self.vertice_list = self.graph.vertex_collection
         self.temp_solution = list()
         self.solution = list()
         self.cost = 0
@@ -31,19 +38,29 @@ class LinearIntegerProgram:
 
         for v in self.graph.vertices:
             self.model += (
-                lpSum(self.v01Travels[v, x] for x in self.graph.vertices if x != v) == 1
+                lpSum(
+                    self.v01Travels[v, x.idx]
+                    for x in self.graph.vertex_collection
+                    if x.idx != v
+                )
+                == 1
             )
             self.model += (
-                lpSum(self.v01Travels[x, v] for x in self.graph.vertices if x != v) == 1
+                lpSum(
+                    self.v01Travels[x.idx, v]
+                    for x in self.graph.vertex_collection
+                    if x.idx != v
+                )
+                == 1
             )
 
         for i in self.vertice_list:
             for j in self.vertice_list:
                 if i != j and i != self.vertice_list[0] and j != self.vertice_list[0]:
                     self.model += (
-                        self.vOneTour[i]
-                        - self.vOneTour[j]
-                        + self.graph.number_vertices * self.v01Travels[i, j]
+                        self.vOneTour[i.idx]
+                        - self.vOneTour[j.idx]
+                        + self.graph.number_vertices * self.v01Travels[i.idx, j.idx]
                         <= self.graph.number_vertices - 1
                     )
 
