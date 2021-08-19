@@ -1,5 +1,5 @@
 """
-
+This file contains the main logic for the Ant Colony Optimization method
 """
 
 # Import from libraries
@@ -9,36 +9,56 @@ import random
 import sys
 from itertools import accumulate
 
+# Import from internal modules
+from tsp_solvers.methods.base import BaseMethod
+
 
 class Ant:
-    def __init__(self, alpha, beta, number_vertices, graph):
+    """
+    The class for the individual ants
+    """
+
+    def __init__(self, alpha=0, beta=0, graph=None):
+        """ """
         self.alpha = alpha
         self.beta = beta
-        self.number_vertices = number_vertices
+        self.number_vertices = graph.number_vertices
         self.graph = graph
-        self.solution = None
+        self.solution = list()
         self.cost = 0
-        self.unvisited_nodes = list(self.graph.vertices)
+        self.unvisited_nodes = list(self.graph.vertex_collection)
 
-    # @profile
     def _select_node(self):
+        """ """
 
         pheromone = [
-            math.pow(
-                self.graph.edges[(self.solution[-1], unvisited)].pheromone, self.alpha
-            )
+            self.graph.edges_dictionary[
+                (self.solution[-1].idx, unvisited.idx)
+            ].pheromone
             for unvisited in self.unvisited_nodes
         ]
+
+        # pheromone = []
+        # for unvisited in self.unvisited_nodes:
+        #     aux = self.graph.edges_dictionary[
+        #         (self.solution[-1].idx, unvisited.idx)
+        #     ].pheromone
+        #     pheromone.append(aux)
+
+        pheromone = list(map(lambda x: math.pow(x, self.alpha), pheromone))
+
         visibility = [
-            math.pow(
-                1 / self.graph.edges[(self.solution[-1], unvisited)].cost, self.beta
-            )
+            self.graph.edges_dictionary[(self.solution[-1].idx, unvisited.idx)].cost
             for unvisited in self.unvisited_nodes
         ]
+
+        visibility = list(map(lambda x: math.pow(1 / x, self.beta), visibility))
+
         denominator = sum([x * y for x, y in zip(pheromone, visibility)])
         cumulative_probability = list(
-            accumulate([p * h / denominator for p, h in zip(pheromone, visibility)])
+            accumulate([p * v / denominator for p, v in zip(pheromone, visibility)])
         )
+
         random_value = random.uniform(0, 1)
 
         added_idx = next(
@@ -46,14 +66,15 @@ class Ant:
             for idx, value in enumerate(cumulative_probability)
             if value >= random_value
         )
+
         added = self.unvisited_nodes[added_idx]
         self.unvisited_nodes.remove(added)
         return added
 
-    # @profile
     def find_solution(self):
-        self.solution = [random.randint(0, self.number_vertices - 1)]
-        self.unvisited_nodes = list(self.graph.vertices)
+        """ """
+        self.solution = random.sample(self.graph.vertex_collection, 1)
+        self.unvisited_nodes = list(self.graph.vertex_collection)
         self.unvisited_nodes.remove(self.solution[0])
         while len(self.solution) < self.number_vertices:
             self.solution.append(self._select_node())
@@ -64,15 +85,13 @@ class Ant:
         return self.cost
 
 
-class AntColonyOptimization:
+class AntColonyOptimization(BaseMethod):
     def __init__(
         self,
         mode="AS",
         graph=None,
         iterations=100,
         population_size=10,
-        elitist_weight=1,
-        min_scaling_factor=0.001,
         alpha=1,
         beta=3,
         rho=0.1,
@@ -81,12 +100,12 @@ class AntColonyOptimization:
         max_time=60,
         plot=False,
     ):
+        super().__init__()
         self.mode = mode
         self.graph = graph
         self.iterations = iterations
+        self.current_iteration = 0
         self.population_size = population_size
-        self.elitist_weight = elitist_weight
-        self.min_scaling_factor = min_scaling_factor
         self.alpha = alpha
         self.beta = beta
         self.rho = rho
@@ -103,26 +122,22 @@ class AntColonyOptimization:
 
         self.time = None
 
-        for edge in self.graph.edges:
+        for edge in self.graph.edges_dictionary:
             self.graph.update_pheromone(edge, initial_pheromone)
 
-        self.ants = [
-            Ant(alpha, beta, self.number_vertices, self.graph)
-            for _ in range(self.population_size)
-        ]
+        self.ants = [Ant(alpha, beta, self.graph) for _ in range(self.population_size)]
 
         self.best_solution = None
         self.best_cost = float("inf")
 
-    # @profile
     def _add_pheromone(self, solution, cost, weight=1):
         pheromone_to_add = self.pheromone_deposit / cost
         for i in range(self.number_vertices):
-            self.graph.edges[
-                (solution[i], solution[(i + 1) % self.number_vertices])
+            self.graph.edges_dictionary[
+                (solution[i].idx, solution[(i + 1) % self.number_vertices].idx)
             ].pheromone = (
-                self.graph.edges[
-                    (solution[i], solution[(i + 1) % self.number_vertices])
+                self.graph.edges_dictionary[
+                    (solution[i].idx, solution[(i + 1) % self.number_vertices].idx)
                 ].pheromone
                 + weight * pheromone_to_add
             )
@@ -135,7 +150,6 @@ class AntColonyOptimization:
         print("\nACO:")
         print("Best solution: ", str(best.solution), "\t|\tcost: ", str(best.cost))
 
-    # @profile
     def evaluate(self):
         costs = [i.cost for i in self.ants]
         mean_cost = sum(costs) / len(costs)
@@ -147,24 +161,25 @@ class AntColonyOptimization:
         else:
             return False
 
-    # @profile
     def _as(self):
         frac = 0.1
-        plot = [10 * x for x in range(1, self.iterations // 10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
+            self.current_iteration = i
             if i / self.iterations >= frac:
                 print("Iteration ", str(i), " of ", str(self.iterations))
                 frac += 0.1
 
             if i != 0:
-                for edge in self.graph.edges:
-                    self.graph.edges[edge].pheromone = self.graph.edges[
+                for edge in self.graph.edges_dictionary:
+                    self.graph.edges_dictionary[
                         edge
-                    ].pheromone * (1 - self.rho)
+                    ].pheromone = self.graph.edges_dictionary[edge].pheromone * (
+                        1 - self.rho
+                    )
 
             for ant in self.ants:
-                self._add_pheromone(ant.find_solution(), ant.get_cost())
+                self._add_pheromone(ant.find_solution(), ant.get_cost(), 2)
                 if ant.cost < self.best_cost:
                     self.best_solution = ant.solution
                     self.best_cost = ant.cost
@@ -174,26 +189,7 @@ class AntColonyOptimization:
                     break
 
             if self.plot:
-                if (i + 1) in plot:
-                    filename = (
-                        "plots/aco_"
-                        + str(self.graph.number_vertices)
-                        + "_"
-                        + str(i + 1)
-                        + ".png"
-                    )
-                    title = (
-                        "Ant Colony Optimization. Iteration "
-                        + str(i + 1)
-                        + "\n Solution cost: "
-                        + str(round(self.best_cost, 2))
-                    )
-                    self.graph.plot_solution(
-                        self.best_solution,
-                        pheromones=True,
-                        filename=filename,
-                        title=title,
-                    )
+                self.plot_advancement()
 
             if (datetime.datetime.utcnow() - initial_time).seconds > self.max_time:
                 break
@@ -216,7 +212,7 @@ class AntColonyOptimization:
             + "\n"
         )
         for ant in self.ants:
-            print("Best solution: %s\t|\tcost: %d" % (str(ant.solution), ant.cost))
+            print("Best solution: %s\t|\t cost: %d" % (str(ant.solution), ant.cost))
 
     def save(self, file):
         best = self.ants[0]
@@ -230,8 +226,28 @@ class AntColonyOptimization:
             + str(best.cost)
             + "\n"
         )
-        with open(file, "a") as myfile:
-            myfile.write(text)
+        with open(file, "a") as f:
+            f.write(text)
 
-    def get_time(self):
-        return self.time
+    def plot_advancement(self):
+        plot = [10 * x for x in range(1, self.iterations // 10 + 1)]
+        if (self.current_iteration + 1) in plot:
+            filename = (
+                "plots/aco_"
+                + str(self.graph.number_vertices)
+                + "_"
+                + str(self.current_iteration + 1)
+                + ".png"
+            )
+            title = (
+                "Ant Colony Optimization. Iteration "
+                + str(self.current_iteration + 1)
+                + "\n Solution cost: "
+                + str(round(self.best_cost, 2))
+            )
+            self.graph.plot_solution(
+                self.best_solution,
+                pheromones=True,
+                filename=filename,
+                title=title,
+            )

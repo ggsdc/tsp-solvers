@@ -1,5 +1,5 @@
 """
-
+This file contains the main logic of the Genetic Algorithm method
 """
 
 # Import from libraries
@@ -9,7 +9,8 @@ import random
 import sys
 
 # Import from internal modules
-from ..initializers import NearestNeighbor, RandomInitializer
+from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
+from tsp_solvers.methods.base import BaseMethod
 
 
 class Individual:
@@ -17,11 +18,23 @@ class Individual:
     The genes are the solution (path)
     """
 
-    def __init__(self, genes, cost, idx):
+    def __init__(self, genes=None, cost=0, idx=0):
+        if genes is None:
+            genes = list()
         self.genes = genes
         self.cost = cost
         self.number_vertices = len(genes)
-        self.id = idx
+        self.idx = idx
+
+    def set_genes(self, genes):
+        self.genes = list(genes)
+        self.number_vertices = len(genes)
+
+    def set_cost(self, cost):
+        self.cost = cost
+
+    def set_idx(self, idx):
+        self.idx = idx
 
     def random_sub_solution(self):
         start = random.randrange(0, self.number_vertices)
@@ -36,9 +49,9 @@ class Individual:
             start, end = end, start
         return self.genes[start:end]
 
-    def remove_vertice(self, x):
-        if x in self.genes:
-            del self.genes[self.genes.index(x)]
+    def remove_vertices(self, sub_solution):
+        subset = set(sub_solution)
+        self.genes = [gene for gene in self.genes if gene not in subset]
 
     def insert_sub_solution(self, sub_solution, x):
         if x != -1:
@@ -60,7 +73,7 @@ class Individual:
         return str(self.genes)
 
 
-class GeneticAlgorithm:
+class GeneticAlgorithm(BaseMethod):
     def __init__(
         self,
         graph,
@@ -72,6 +85,7 @@ class GeneticAlgorithm:
         plot=False,
     ):
         """ """
+        super().__init__()
         self.individuals = list()
         self.graph = graph
         self.max_generations = max_generations
@@ -123,14 +137,16 @@ class GeneticAlgorithm:
 
     def best_insertion(self, child, sub_solution):
         start = sub_solution[0]
-        end = sub_solution[1]
+        end = sub_solution[-1]
         best_payoff = float("-inf")
         j = 0
         for i in range(0, len(child.genes) - 1):
             payoff = (
-                self.graph.edges[(child.genes[i], child.genes[i + 1])].cost
-                - self.graph.edges[(child.genes[i], start)].cost
-                - self.graph.edges[(end, child.genes[i + 1])].cost
+                self.graph.edges_dictionary[
+                    (child.genes[i].idx, child.genes[i + 1].idx)
+                ].cost
+                - self.graph.edges_dictionary[(child.genes[i].idx, start.idx)].cost
+                - self.graph.edges_dictionary[(end.idx, child.genes[i + 1].idx)].cost
             )
 
             if payoff > best_payoff:
@@ -138,9 +154,9 @@ class GeneticAlgorithm:
                 j = i
 
         payoff = (
-            self.graph.edges[(child.genes[-1], child.genes[0])].cost
-            - self.graph.edges[(child.genes[-1], start)].cost
-            - self.graph.edges[(end, child.genes[0])].cost
+            self.graph.edges_dictionary[(child.genes[-1].idx, child.genes[0].idx)].cost
+            - self.graph.edges_dictionary[(child.genes[-1].idx, start.idx)].cost
+            - self.graph.edges_dictionary[(end.idx, child.genes[0].idx)].cost
         )
 
         if payoff > best_payoff:
@@ -155,13 +171,14 @@ class GeneticAlgorithm:
             ind1 = random.choice(self.mating_pool)
             ind2 = random.choice(self.mating_pool)
 
-            child = copy.deepcopy(ind1)
-            child.id = self.id
+            child = Individual()
+            child.set_genes(ind1.genes)
+            child.set_cost(ind1.cost)
+            child.set_idx(self.id)
             self.id += 1
             sub_solution = ind2.random_sub_solution()
 
-            for x in sub_solution:
-                child.remove_vertice(x)
+            child.remove_vertices(sub_solution)
 
             n = self.best_insertion(child, sub_solution)
             child.insert_sub_solution(sub_solution, n)
@@ -170,7 +187,7 @@ class GeneticAlgorithm:
 
     def selection(self):
         self.mating_pool = []
-        iterator_list = copy.deepcopy(self.individuals)
+        iterator_list = list(self.individuals)
         while len(self.mating_pool) < self.population_size // 2:
             selected = min(iterator_list, key=lambda i: i.cost)
             iterator_list.remove(selected)
@@ -185,7 +202,7 @@ class GeneticAlgorithm:
 
     def substitution(self):
         new_population = []
-        iterator_list = copy.deepcopy(self.individuals + self.children)
+        iterator_list = self.individuals + self.children
 
         while len(new_population) < self.population_size:
             selected = min(iterator_list, key=lambda i: i.cost)
@@ -195,6 +212,8 @@ class GeneticAlgorithm:
         self.individuals = new_population
 
     def evaluate(self):
+        # TODO: review logic behind as this diversity is not working as intended and it stops prematurely with
+        #  worse solutions than when this evaluation is not performed
         costs = [i.cost for i in self.individuals]
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
@@ -279,6 +298,3 @@ class GeneticAlgorithm:
         )
         with open(file, "a") as myfile:
             myfile.write(text)
-
-    def get_time(self):
-        return self.time
