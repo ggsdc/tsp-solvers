@@ -16,11 +16,17 @@ class NearestNeighbor:
             aux_list.remove(random_start)
             random_list = [random_start]
             while len(aux_list) > 0:
-                min_dist = float("Inf")
+                min_cost = float("Inf")
                 next_node = None
+
                 for i in aux_list:
-                    if self.graph.edges_cost[(random_list[-1].idx, i.idx)] < min_dist:
-                        min_dist = self.graph.edges_cost[(random_list[-1].idx, i.idx)]
+                    if (
+                        self.graph.edges_dictionary[(random_list[-1].idx, i.idx)].cost
+                        < min_cost
+                    ):
+                        min_cost = self.graph.edges_dictionary[
+                            (random_list[-1].idx, i.idx)
+                        ].cost
                         next_node = i
 
                 random_list.append(next_node)
