@@ -2,19 +2,28 @@ import random
 
 
 def main():
-    from tsp_solvers import Graph, GeneticAlgorithm, AntColonyOptimization
+    from tsp_solvers import (
+        Graph,
+        GeneticAlgorithm,
+        AntColonyOptimization,
+        LinearIntegerProgram,
+    )
 
     random.seed(123)
     g = Graph()
     # g.create_graph_from_json("./data/100_vertex_random_graph.json")
-    g.random_complete_graph(100)
+    g.random_complete_graph(10)
     # ga = GeneticAlgorithm(g, 200, 100, 0.1, 120, "nearest")
     # ga.run()
     # ga.get_best()
 
-    aco = AntColonyOptimization("AS", g, 100, 10)
-    aco.run()
-    aco.get_best()
+    # aco = AntColonyOptimization("AS", g, 100, 10)
+    # aco.run()
+    # aco.get_best()
+
+    lp = LinearIntegerProgram(g, 120)
+    lp.build_model()
+    lp.run()
 
 
 if __name__ == "__main__":

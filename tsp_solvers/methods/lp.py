@@ -3,25 +3,17 @@ import sys
 
 from pulp import *
 
+from tsp_solvers.methods.base import BaseMethod
 
-class LinearIntegerProgram:
+
+class LinearIntegerProgram(BaseMethod):
     def __init__(self, graph, max_time, plot=False):
+        super().__init__()
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
-        self.v01Travels = LpVariable.dicts(
-            "Travel",
-            (
-                (vertex_1.idx, vertex_2.idx)
-                for vertex_1 in self.graph.vertex_collection
-                for vertex_2 in self.graph.vertex_collection
-                if vertex_1 != vertex_2
-            ),
-            cat="Binary",
-        )
-        self.vOneTour = LpVariable.dicts(
-            "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
-        )
-        self.vertice_list = self.graph.vertex_collection
+        self.vertices_list = self.graph.vertex_collection
+        self.v01Travels = None
+        self.vOneTour = None
         self.temp_solution = list()
         self.solution = list()
         self.cost = 0
@@ -36,27 +28,38 @@ class LinearIntegerProgram:
 
     def build_model(self):
 
-        for v in self.graph.vertices:
+        self.v01Travels = LpVariable.dicts(
+            "Travel",
+            (
+                (v1.idx, v2.idx)
+                for v1 in self.vertices_list
+                for v2 in self.vertices_list
+                if v1 != v2
+            ),
+            cat="Binary",
+        )
+        self.vOneTour = LpVariable.dicts(
+            "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
+        )
+        print(self.vOneTour)
+
+        for v in self.vertices_list:
             self.model += (
                 lpSum(
-                    self.v01Travels[v, x.idx]
-                    for x in self.graph.vertex_collection
-                    if x.idx != v
+                    self.v01Travels[v.idx, x.idx] for x in self.vertices_list if x != v
                 )
                 == 1
             )
             self.model += (
                 lpSum(
-                    self.v01Travels[x.idx, v]
-                    for x in self.graph.vertex_collection
-                    if x.idx != v
+                    self.v01Travels[x.idx, v.idx] for x in self.vertices_list if x != v
                 )
                 == 1
             )
 
-        for i in self.vertice_list:
-            for j in self.vertice_list:
-                if i != j and i != self.vertice_list[0] and j != self.vertice_list[0]:
+        for i in self.vertices_list:
+            for j in self.vertices_list:
+                if i != j and i != self.vertices_list[0] and j != self.vertices_list[0]:
                     self.model += (
                         self.vOneTour[i.idx]
                         - self.vOneTour[j.idx]
@@ -64,28 +67,19 @@ class LinearIntegerProgram:
                         <= self.graph.number_vertices - 1
                     )
 
-        for i in self.vertice_list:
-            if i != self.vertice_list[0]:
-                self.model += self.vOneTour[i] <= self.graph.number_vertices - 1
+        for i in self.vertices_list:
+            if i != self.vertices_list[0]:
+                self.model += self.vOneTour[i.idx] <= self.graph.number_vertices - 1
 
         self.model += lpSum(
-            self.v01Travels[edge[0], edge[1]] * self.graph.edges[edge].cost
-            for edge in self.graph.edges
+            self.v01Travels[edge[0], edge[1]] * self.graph.edges_dictionary[edge].cost
+            for edge in self.graph.edges_dictionary
         )
 
     def run(self):
         start = datetime.datetime.utcnow()
-        # self.model.solve(
-        #     GUROBI_CMD(
-        #         msg=0,
-        #         options=[
-        #             ("TimeLimit", self.max_time),
-        #             ("MIPGap", 0.05),
-        #             ("MIPGapAbs", 0.05),
-        #         ],
-        #     )
-        # )
-        self.model.solve(PULP_CBC_CMD(msg=1, gapRel=0.05, timeLimit=self.max_time))
+
+        self.model.solve(PULP_CBC_CMD(msg=True, gapRel=0.05, timeLimit=self.max_time))
 
         print(self.model.status)
         if self.model.status == 1:
@@ -114,6 +108,8 @@ class LinearIntegerProgram:
                     break
 
             del self.solution[-1]
+
+            self.solution = [self.graph.vertex_dictionary[idx] for idx in self.solution]
 
             self.cost = self.graph.get_cost(self.solution)
 
@@ -147,6 +143,3 @@ class LinearIntegerProgram:
         )
         with open(file, "a") as myfile:
             myfile.write(text)
-
-    def get_time(self):
-        return self.time
