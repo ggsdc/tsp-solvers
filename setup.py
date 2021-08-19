@@ -1,5 +1,4 @@
 import setuptools
-import os
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
