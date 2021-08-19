@@ -1,5 +1,5 @@
 """
-
+This file contains the main logic of the Genetic Algorithm method
 """
 
 # Import from libraries
@@ -10,6 +10,7 @@ import sys
 
 # Import from internal modules
 from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
+from tsp_solvers.methods.base import BaseMethod
 
 
 class Individual:
@@ -72,7 +73,7 @@ class Individual:
         return str(self.genes)
 
 
-class GeneticAlgorithm:
+class GeneticAlgorithm(BaseMethod):
     def __init__(
         self,
         graph,
@@ -84,6 +85,7 @@ class GeneticAlgorithm:
         plot=False,
     ):
         """ """
+        super().__init__()
         self.individuals = list()
         self.graph = graph
         self.max_generations = max_generations
@@ -140,9 +142,11 @@ class GeneticAlgorithm:
         j = 0
         for i in range(0, len(child.genes) - 1):
             payoff = (
-                self.graph.edges_cost[(child.genes[i].idx, child.genes[i + 1].idx)]
-                - self.graph.edges_cost[(child.genes[i].idx, start.idx)]
-                - self.graph.edges_cost[(end.idx, child.genes[i + 1].idx)]
+                self.graph.edges_dictionary[
+                    (child.genes[i].idx, child.genes[i + 1].idx)
+                ].cost
+                - self.graph.edges_dictionary[(child.genes[i].idx, start.idx)].cost
+                - self.graph.edges_dictionary[(end.idx, child.genes[i + 1].idx)].cost
             )
 
             if payoff > best_payoff:
@@ -150,9 +154,9 @@ class GeneticAlgorithm:
                 j = i
 
         payoff = (
-            self.graph.edges_cost[(child.genes[-1].idx, child.genes[0].idx)]
-            - self.graph.edges_cost[(child.genes[-1].idx, start.idx)]
-            - self.graph.edges_cost[(end.idx, child.genes[0].idx)]
+            self.graph.edges_dictionary[(child.genes[-1].idx, child.genes[0].idx)].cost
+            - self.graph.edges_dictionary[(child.genes[-1].idx, start.idx)].cost
+            - self.graph.edges_dictionary[(end.idx, child.genes[0].idx)].cost
         )
 
         if payoff > best_payoff:
@@ -294,6 +298,3 @@ class GeneticAlgorithm:
         )
         with open(file, "a") as myfile:
             myfile.write(text)
-
-    def get_time(self):
-        return self.time

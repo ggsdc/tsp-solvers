@@ -82,10 +82,9 @@ class Vertex:
 class Graph:
     def __init__(self):
         self.data = None
-        self.edges = dict()
         self.number_vertices = None
         self.edges_collection = list()
-        self.edges_cost = dict()
+        self.edges_dictionary = dict()
         self.vertex_collection = list()
 
     def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
@@ -96,7 +95,7 @@ class Graph:
                     return False
 
         edge.set_cost(cost)
-        self.edges_cost[(vertex_1.idx, vertex_2.idx)] = cost
+        self.edges_dictionary[(vertex_1.idx, vertex_2.idx)] = edge
         self.edges_collection.append(edge)
 
     def calculate_cost(self, vertex_1, vertex_2):
@@ -251,13 +250,15 @@ class Graph:
     def get_cost(self, path):
         total_cost = 0
         for i in range(self.number_vertices - 1):
-            total_cost += self.edges_cost[(path[i].idx, path[i + 1].idx)]
+            total_cost += self.edges_dictionary[(path[i].idx, path[i + 1].idx)].cost
 
-        total_cost += self.edges_cost[(path[self.number_vertices - 1].idx, path[0].idx)]
+        total_cost += self.edges_dictionary[
+            (path[self.number_vertices - 1].idx, path[0].idx)
+        ].cost
         return total_cost
 
     def update_pheromone(self, edge, pheromone):
-        self.edges[edge].pheromone = pheromone
+        self.edges_dictionary[edge].pheromone = pheromone
 
     def save_graph_to_json(self, path):
         with open(path, "w") as f:
