@@ -16,7 +16,7 @@ extra_required["plot"].remove("-r requirements.txt")
 
 setuptools.setup(
     name="tsp-solvers",
-    version="0.0.2a",
+    version="0.0.3",
     author="Guillermo González-Santander",
     author_email="g.gsantanderdelacruz@gmail.com",
     description="Set of different methods to solve the Travelling Salesman Problem. Each method has its own class",
