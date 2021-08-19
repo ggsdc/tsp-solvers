@@ -86,6 +86,7 @@ class Graph:
         self.edges_collection = list()
         self.edges_dictionary = dict()
         self.vertex_collection = list()
+        self.vertex_dictionary = dict()
 
     def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
         edge = Edge({"origin": vertex_1, "destination": vertex_2})
@@ -206,6 +207,7 @@ class Graph:
                 if not repeat:
                     new = False
             self.vertex_collection.append(temp_vertex)
+            self.vertex_dictionary[temp_vertex.idx] = temp_vertex
 
         for i in self.vertex_collection:
             for j in self.vertex_collection:
