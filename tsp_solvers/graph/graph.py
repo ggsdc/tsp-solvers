@@ -61,19 +61,28 @@ class Vertex:
         return hash((self.idx, self.x, self.y))
 
     def __eq__(self, other):
-        if not isinstance(other, Vertex):
+        if isinstance(other, Vertex):
+            return self._hash == other._hash
+        elif isinstance(other, int):
+            return self.idx == other
+        else:
             raise NotImplemented("The objects do not share the same class")
-        return self._hash == other._hash
 
     def __lt__(self, other):
-        if not isinstance(other, Vertex):
+        if isinstance(other, Vertex):
+            return self._hash < other._hash
+        elif isinstance(other, int):
+            return self.idx < other
+        else:
             raise NotImplemented("The objects do not share the same class")
-        return self._hash < other._hash
 
     def __le__(self, other):
-        if not isinstance(other, Vertex):
+        if isinstance(other, Vertex):
+            return self._hash <= other._hash
+        elif isinstance(other, int):
+            return self.idx <= other
+        else:
             raise NotImplemented("The objects do not share the same class")
-        return self._hash <= other._hash
 
     def __repr__(self):
         return "{}".format(self.idx)

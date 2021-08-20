@@ -83,6 +83,7 @@ class GeneticAlgorithm(BaseMethod):
         max_time,
         init="random",
         plot=False,
+        verbose=False,
     ):
         """ """
         super().__init__()
@@ -96,6 +97,7 @@ class GeneticAlgorithm(BaseMethod):
         self.id = 1
         self.max_time = max_time
         self.time = None
+        self.verbose = verbose
 
         self.best_genes = None
         self.best_cost = float("inf")
@@ -218,7 +220,8 @@ class GeneticAlgorithm(BaseMethod):
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
         if min_cost * 1.01 > mean_cost:
-            print("BREAK")
+            if self.verbose:
+                print("BREAK")
             return True
         else:
             return False
@@ -229,7 +232,7 @@ class GeneticAlgorithm(BaseMethod):
         plot = [10 * x for x in range(1, self.max_generations // 10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
-            if i / self.max_generations >= frac:
+            if i / self.max_generations >= frac and self.verbose:
                 print("Iteration ", str(i), " of ", str(self.max_generations))
                 frac += 0.1
             # print("Generation: ", i + 1)

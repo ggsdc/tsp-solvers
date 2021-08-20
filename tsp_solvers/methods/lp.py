@@ -41,7 +41,6 @@ class LinearIntegerProgram(BaseMethod):
         self.vOneTour = LpVariable.dicts(
             "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
         )
-        print(self.vOneTour)
 
         for v in self.vertices_list:
             self.model += (
