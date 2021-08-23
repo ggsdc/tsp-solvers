@@ -8,7 +8,7 @@ class RandomInitializer:
 
     def get_init(self):
         random_paths = []
-        list_vertices = self.graph.vertex_collection
+        list_vertices = self.graph.vertices
 
         for _ in range(self.population):
             random_list = random.sample(list_vertices, len(list_vertices))

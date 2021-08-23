@@ -26,7 +26,7 @@ class Ant:
         self.graph = graph
         self.solution = list()
         self.cost = 0
-        self.unvisited_nodes = list(self.graph.vertex_collection)
+        self.unvisited_nodes = list(self.graph.vertices)
 
     def _select_node(self):
         """ """
@@ -73,8 +73,8 @@ class Ant:
 
     def find_solution(self):
         """ """
-        self.solution = random.sample(self.graph.vertex_collection, 1)
-        self.unvisited_nodes = list(self.graph.vertex_collection)
+        self.solution = random.sample(self.graph.vertices, 1)
+        self.unvisited_nodes = list(self.graph.vertices)
         self.unvisited_nodes.remove(self.solution[0])
         while len(self.solution) < self.number_vertices:
             self.solution.append(self._select_node())

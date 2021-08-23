@@ -9,11 +9,11 @@ def main():
         LinearIntegerProgram,
     )
 
-    random.seed(123)
+    random.seed(200)
     g = Graph()
     # g.create_graph_from_json("./data/100_vertex_random_graph.json")
-    g.random_complete_graph(100)
-    g.save_graph_to_json("./tsp_solvers/tests/data/1000v.json")
+    g.random_complete_graph(10)
+    # g.save_graph_to_json("./tsp_solvers/tests/data/10v.json")
     ga = GeneticAlgorithm(g, 200, 10, 0.1, 120, "nearest", verbose=True)
     ga.run()
     # ga.get_best()

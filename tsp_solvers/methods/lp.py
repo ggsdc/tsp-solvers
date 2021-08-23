@@ -11,7 +11,7 @@ class LinearIntegerProgram(BaseMethod):
         super().__init__()
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
-        self.vertices_list = self.graph.vertex_collection
+        self.vertices_list = self.graph.vertices
         self.v01Travels = None
         self.vOneTour = None
         self.temp_solution = list()
@@ -39,7 +39,7 @@ class LinearIntegerProgram(BaseMethod):
             cat="Binary",
         )
         self.vOneTour = LpVariable.dicts(
-            "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
+            "Aux", (v.idx for v in self.graph.vertices), cat="Integer"
         )
 
         for v in self.vertices_list:
@@ -108,7 +108,9 @@ class LinearIntegerProgram(BaseMethod):
 
             del self.solution[-1]
 
-            self.solution = [self.graph.vertex_dictionary[idx] for idx in self.solution]
+            self.solution = [
+                self.graph.vertices_collection[idx] for idx in self.solution
+            ]
 
             self.cost = self.graph.get_cost(self.solution)
 

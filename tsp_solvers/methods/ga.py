@@ -50,6 +50,7 @@ class Individual:
         return self.genes[start:end]
 
     def remove_vertices(self, sub_solution):
+
         subset = set(sub_solution)
         self.genes = [gene for gene in self.genes if gene not in subset]
 
@@ -168,6 +169,7 @@ class GeneticAlgorithm(BaseMethod):
         return j
 
     def cross_over(self):
+
         self.children = []
         for n in range(0, self.population_size // 2):
             ind1 = random.choice(self.mating_pool)
