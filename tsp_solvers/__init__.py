@@ -5,6 +5,7 @@ from tsp_solvers.methods import (
     ParticleSwarmOptimization,
     SimulatedAnnealing,
     TwoOpt,
+    Christofides,
 )
 
 from tsp_solvers.graph import Graph

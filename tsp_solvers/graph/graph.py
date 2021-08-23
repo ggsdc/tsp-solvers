@@ -55,6 +55,7 @@ class Vertex:
         self.idx = data.get("idx")
         self.x = data.get("x")
         self.y = data.get("y")
+        self.degree = 0
         self._hash = self.__hash__()
         self.attributes_to_dict = ["idx", "x", "y"]
 
@@ -97,6 +98,8 @@ class Graph:
         self.edges_collection = dict()
         self.vertices = list()
         self.vertices_collection = dict()
+        # Used in Christofides approach
+        self.components_groups = list()
 
     def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
         edge = Edge({"origin": vertex_1, "destination": vertex_2})
@@ -132,6 +135,22 @@ class Graph:
             )
         plt.close()
         plt.scatter(x_coord, y_coord, c="#000000")
+        plt.show()
+
+    def plot_edges(self):
+        x_coord = [vertex.x for vertex in self.vertices]
+        y_coord = [vertex.y for vertex in self.vertices]
+        if "matplotlib" not in sys.modules:
+            raise ModuleNotFoundError(
+                "Matplotlib has to be installed to be able to plot!"
+            )
+        plt.close()
+        plt.scatter(x_coord, y_coord, c="#000000")
+
+        for i in self.edges:
+            x_values = [i.origin.x, i.destination.x]
+            y_values = [i.origin.y, i.destination.y]
+            plt.plot(x_values, y_values, c="#000000")
         plt.show()
 
     def plot_solution(self, path, pheromones=False, filename="none.png", title=""):
@@ -189,7 +208,7 @@ class Graph:
             self.vertices[0].x,
         ]
         y_values = [
-            self.vertices[self.number_vertices - 1].yº,
+            self.vertices[self.number_vertices - 1].y,
             self.vertices[0].y,
         ]
         plt.plot(x_values, y_values, c="#000000")
@@ -258,7 +277,6 @@ class Graph:
             nodes = [node.split(" ") for node in nodes]
 
         self.number_vertices = len(nodes)
-        print(nodes)
 
         self.vertices = [
             Vertex({"idx": int(node[0]), "x": float(node[1]), "y": float(node[2])})
@@ -311,3 +329,37 @@ class Graph:
                 },
                 f,
             )
+
+    def calculate_vertex_degree(self):
+        # TODO: implement function that either calculates the degrees of all vertices or a given one
+        pass
+
+    def calculate_components(self):
+        # TODO: review as it is not working properly.
+        self.components_groups = list()
+        for edge in self.edges:
+            in_group = False
+            if not self.components_groups:
+                self.components_groups.append([edge.origin, edge.destination])
+                continue
+
+            for component in self.components_groups:
+
+                if edge.origin in component or edge.destination in component:
+
+                    if edge.origin in component and edge.destination in component:
+                        in_group = True
+                        break
+
+                    elif edge.origin in component:
+                        component.append(edge.destination)
+                        in_group = True
+                        break
+
+                    elif edge.destination in component:
+                        component.append(edge.origin)
+                        in_group = True
+                        break
+
+            if not in_group:
+                self.components_groups.append([edge.origin, edge.destination])

@@ -3,7 +3,6 @@ This file contains the main logic of the Genetic Algorithm method
 """
 
 # Import from libraries
-import copy
 import datetime
 import random
 import sys
@@ -97,7 +96,6 @@ class GeneticAlgorithm(BaseMethod):
         self.children = []
         self.id = 1
         self.max_time = max_time
-        self.time = None
         self.verbose = verbose
 
         self.best_genes = None
