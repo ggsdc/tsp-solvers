@@ -21,10 +21,10 @@ class NearestNeighbor:
 
                 for i in aux_list:
                     if (
-                        self.graph.edges_dictionary[(random_list[-1].idx, i.idx)].cost
+                        self.graph.edges_collection[(random_list[-1].idx, i.idx)].cost
                         < min_cost
                     ):
-                        min_cost = self.graph.edges_dictionary[
+                        min_cost = self.graph.edges_collection[
                             (random_list[-1].idx, i.idx)
                         ].cost
                         next_node = i

@@ -145,11 +145,11 @@ class GeneticAlgorithm(BaseMethod):
         j = 0
         for i in range(0, len(child.genes) - 1):
             payoff = (
-                self.graph.edges_dictionary[
+                self.graph.edges_collection[
                     (child.genes[i].idx, child.genes[i + 1].idx)
                 ].cost
-                - self.graph.edges_dictionary[(child.genes[i].idx, start.idx)].cost
-                - self.graph.edges_dictionary[(end.idx, child.genes[i + 1].idx)].cost
+                - self.graph.edges_collection[(child.genes[i].idx, start.idx)].cost
+                - self.graph.edges_collection[(end.idx, child.genes[i + 1].idx)].cost
             )
 
             if payoff > best_payoff:
@@ -157,9 +157,9 @@ class GeneticAlgorithm(BaseMethod):
                 j = i
 
         payoff = (
-            self.graph.edges_dictionary[(child.genes[-1].idx, child.genes[0].idx)].cost
-            - self.graph.edges_dictionary[(child.genes[-1].idx, start.idx)].cost
-            - self.graph.edges_dictionary[(end.idx, child.genes[0].idx)].cost
+            self.graph.edges_collection[(child.genes[-1].idx, child.genes[0].idx)].cost
+            - self.graph.edges_collection[(child.genes[-1].idx, start.idx)].cost
+            - self.graph.edges_collection[(end.idx, child.genes[0].idx)].cost
         )
 
         if payoff > best_payoff:

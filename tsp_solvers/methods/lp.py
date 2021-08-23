@@ -71,8 +71,8 @@ class LinearIntegerProgram(BaseMethod):
                 self.model += self.vOneTour[i.idx] <= self.graph.number_vertices - 1
 
         self.model += lpSum(
-            self.v01Travels[edge[0], edge[1]] * self.graph.edges_dictionary[edge].cost
-            for edge in self.graph.edges_dictionary
+            self.v01Travels[edge[0], edge[1]] * self.graph.edges_collection[edge].cost
+            for edge in self.graph.edges_collection
         )
 
     def run(self):
