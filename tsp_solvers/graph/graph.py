@@ -249,8 +249,30 @@ class Graph:
     def create_graph_from_db(self):
         pass
 
-    def create_graph_from_tsplib(self):
-        pass
+    def create_graph_from_tsp(self, path: str):
+        with open(path) as f:
+            text = f.read()
+            _, nodes = text.split("NODE_COORD_SECTION")
+            nodes = nodes.split("\n")
+            nodes = nodes[1:-1]
+            nodes = [node.split(" ") for node in nodes]
+
+        self.number_vertices = len(nodes)
+        print(nodes)
+
+        self.vertices = [
+            Vertex({"idx": int(node[0]), "x": float(node[1]), "y": float(node[2])})
+            for node in nodes
+        ]
+
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
+
+        for i in self.vertices:
+            for j in self.vertices:
+                if i < j:
+                    cost = self.calculate_cost(i, j)
+                    self.add_edge(i, j, cost)
+                    self.add_edge(j, i, cost)
 
     def get_random_paths(self, size):
         random_paths = []
