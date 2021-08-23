@@ -246,6 +246,12 @@ class Graph:
             # TODO: implement if the json has edges
             pass
 
+    def create_graph_from_db(self):
+        pass
+
+    def create_graph_from_tsplib(self):
+        pass
+
     def get_random_paths(self, size):
         random_paths = []
 
