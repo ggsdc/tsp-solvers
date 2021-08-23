@@ -26,13 +26,13 @@ class Ant:
         self.graph = graph
         self.solution = list()
         self.cost = 0
-        self.unvisited_nodes = list(self.graph.vertex_collection)
+        self.unvisited_nodes = list(self.graph.vertices)
 
     def _select_node(self):
         """ """
 
         pheromone = [
-            self.graph.edges_dictionary[
+            self.graph.edges_collection[
                 (self.solution[-1].idx, unvisited.idx)
             ].pheromone
             for unvisited in self.unvisited_nodes
@@ -40,7 +40,7 @@ class Ant:
 
         # pheromone = []
         # for unvisited in self.unvisited_nodes:
-        #     aux = self.graph.edges_dictionary[
+        #     aux = self.graph.edges_collection[
         #         (self.solution[-1].idx, unvisited.idx)
         #     ].pheromone
         #     pheromone.append(aux)
@@ -48,7 +48,7 @@ class Ant:
         pheromone = list(map(lambda x: math.pow(x, self.alpha), pheromone))
 
         visibility = [
-            self.graph.edges_dictionary[(self.solution[-1].idx, unvisited.idx)].cost
+            self.graph.edges_collection[(self.solution[-1].idx, unvisited.idx)].cost
             for unvisited in self.unvisited_nodes
         ]
 
@@ -73,8 +73,8 @@ class Ant:
 
     def find_solution(self):
         """ """
-        self.solution = random.sample(self.graph.vertex_collection, 1)
-        self.unvisited_nodes = list(self.graph.vertex_collection)
+        self.solution = random.sample(self.graph.vertices, 1)
+        self.unvisited_nodes = list(self.graph.vertices)
         self.unvisited_nodes.remove(self.solution[0])
         while len(self.solution) < self.number_vertices:
             self.solution.append(self._select_node())
@@ -122,7 +122,7 @@ class AntColonyOptimization(BaseMethod):
 
         self.time = None
 
-        for edge in self.graph.edges_dictionary:
+        for edge in self.graph.edges_collection:
             self.graph.update_pheromone(edge, initial_pheromone)
 
         self.ants = [Ant(alpha, beta, self.graph) for _ in range(self.population_size)]
@@ -133,10 +133,10 @@ class AntColonyOptimization(BaseMethod):
     def _add_pheromone(self, solution, cost, weight=1):
         pheromone_to_add = self.pheromone_deposit / cost
         for i in range(self.number_vertices):
-            self.graph.edges_dictionary[
+            self.graph.edges_collection[
                 (solution[i].idx, solution[(i + 1) % self.number_vertices].idx)
             ].pheromone = (
-                self.graph.edges_dictionary[
+                self.graph.edges_collection[
                     (solution[i].idx, solution[(i + 1) % self.number_vertices].idx)
                 ].pheromone
                 + weight * pheromone_to_add
@@ -171,10 +171,10 @@ class AntColonyOptimization(BaseMethod):
                 frac += 0.1
 
             if i != 0:
-                for edge in self.graph.edges_dictionary:
-                    self.graph.edges_dictionary[
+                for edge in self.graph.edges_collection:
+                    self.graph.edges_collection[
                         edge
-                    ].pheromone = self.graph.edges_dictionary[edge].pheromone * (
+                    ].pheromone = self.graph.edges_collection[edge].pheromone * (
                         1 - self.rho
                     )
 

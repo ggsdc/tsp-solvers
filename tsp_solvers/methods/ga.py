@@ -50,6 +50,7 @@ class Individual:
         return self.genes[start:end]
 
     def remove_vertices(self, sub_solution):
+
         subset = set(sub_solution)
         self.genes = [gene for gene in self.genes if gene not in subset]
 
@@ -83,6 +84,7 @@ class GeneticAlgorithm(BaseMethod):
         max_time,
         init="random",
         plot=False,
+        verbose=False,
     ):
         """ """
         super().__init__()
@@ -96,6 +98,7 @@ class GeneticAlgorithm(BaseMethod):
         self.id = 1
         self.max_time = max_time
         self.time = None
+        self.verbose = verbose
 
         self.best_genes = None
         self.best_cost = float("inf")
@@ -142,11 +145,11 @@ class GeneticAlgorithm(BaseMethod):
         j = 0
         for i in range(0, len(child.genes) - 1):
             payoff = (
-                self.graph.edges_dictionary[
+                self.graph.edges_collection[
                     (child.genes[i].idx, child.genes[i + 1].idx)
                 ].cost
-                - self.graph.edges_dictionary[(child.genes[i].idx, start.idx)].cost
-                - self.graph.edges_dictionary[(end.idx, child.genes[i + 1].idx)].cost
+                - self.graph.edges_collection[(child.genes[i].idx, start.idx)].cost
+                - self.graph.edges_collection[(end.idx, child.genes[i + 1].idx)].cost
             )
 
             if payoff > best_payoff:
@@ -154,9 +157,9 @@ class GeneticAlgorithm(BaseMethod):
                 j = i
 
         payoff = (
-            self.graph.edges_dictionary[(child.genes[-1].idx, child.genes[0].idx)].cost
-            - self.graph.edges_dictionary[(child.genes[-1].idx, start.idx)].cost
-            - self.graph.edges_dictionary[(end.idx, child.genes[0].idx)].cost
+            self.graph.edges_collection[(child.genes[-1].idx, child.genes[0].idx)].cost
+            - self.graph.edges_collection[(child.genes[-1].idx, start.idx)].cost
+            - self.graph.edges_collection[(end.idx, child.genes[0].idx)].cost
         )
 
         if payoff > best_payoff:
@@ -166,6 +169,7 @@ class GeneticAlgorithm(BaseMethod):
         return j
 
     def cross_over(self):
+
         self.children = []
         for n in range(0, self.population_size // 2):
             ind1 = random.choice(self.mating_pool)
@@ -218,7 +222,8 @@ class GeneticAlgorithm(BaseMethod):
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
         if min_cost * 1.01 > mean_cost:
-            print("BREAK")
+            if self.verbose:
+                print("BREAK")
             return True
         else:
             return False
@@ -229,7 +234,7 @@ class GeneticAlgorithm(BaseMethod):
         plot = [10 * x for x in range(1, self.max_generations // 10 + 1)]
         initial_time = datetime.datetime.utcnow()
         for i in range(self.max_generations):
-            if i / self.max_generations >= frac:
+            if i / self.max_generations >= frac and self.verbose:
                 print("Iteration ", str(i), " of ", str(self.max_generations))
                 frac += 0.1
             # print("Generation: ", i + 1)
