@@ -15,9 +15,15 @@ class BaseMethod:
         return self.time
 
     def show(self):
-        """ """
-        pass
+        """Has to be implemented in subclass"""
+        raise NotImplemented
 
     def get_best(self):
-        """ """
-        pass
+        """Has to be implemented in subclass"""
+        raise NotImplemented
+
+    def run(self):
+        """
+        Has to be implemented in subclass
+        """
+        raise NotImplemented
