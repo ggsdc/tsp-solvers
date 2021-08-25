@@ -82,7 +82,7 @@ class Ant:
         return self.solution
 
     def get_cost(self):
-        self.cost = self.graph.get_cost(self.solution)
+        self.cost = self.graph.get_solution_cost(self.solution)
         return self.cost
 
 

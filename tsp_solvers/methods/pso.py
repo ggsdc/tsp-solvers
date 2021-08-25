@@ -56,7 +56,9 @@ class ParticleSwarmOptimization:
         solutions = self.initializer.get_init()
 
         for solution in solutions:
-            particle = Particle(solution=solution, cost=graph.get_cost(solution))
+            particle = Particle(
+                solution=solution, cost=graph.get_solution_cost(solution)
+            )
             self.particles.append(particle)
 
         self.size_population = len(self.particles)
@@ -156,7 +158,7 @@ class ParticleSwarmOptimization:
 
                 particle.solution = solution_particle
 
-                current_cost = self.graph.get_cost(solution_particle)
+                current_cost = self.graph.get_solution_cost(solution_particle)
                 particle.cost = current_cost
 
                 if current_cost < particle.best_cost:

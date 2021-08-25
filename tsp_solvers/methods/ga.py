@@ -119,7 +119,7 @@ class GeneticAlgorithm(BaseMethod):
 
         for solution in solutions:
             individual = Individual(
-                genes=solution, cost=self.graph.get_cost(solution), idx=self.id
+                genes=solution, cost=self.graph.get_solution_cost(solution), idx=self.id
             )
             self.id += 1
             self.individuals.append(individual)
@@ -186,7 +186,7 @@ class GeneticAlgorithm(BaseMethod):
 
             n = self.best_insertion(child, sub_solution)
             child.insert_sub_solution(sub_solution, n)
-            child.cost = self.graph.get_cost(child.genes)
+            child.cost = self.graph.get_solution_cost(child.genes)
             self.children.append(child)
 
     def selection(self):
@@ -202,7 +202,9 @@ class GeneticAlgorithm(BaseMethod):
             prob = random.uniform(0, 1)
             if prob < self.mutation_probability:
                 self.children[i].mutate()
-                self.children[i].cost = self.graph.get_cost(self.children[i].genes)
+                self.children[i].cost = self.graph.get_solution_cost(
+                    self.children[i].genes
+                )
 
     def substitution(self):
         new_population = []

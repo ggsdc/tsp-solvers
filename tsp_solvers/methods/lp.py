@@ -112,7 +112,7 @@ class LinearIntegerProgram(BaseMethod):
                 self.graph.vertices_collection[idx] for idx in self.solution
             ]
 
-            self.cost = self.graph.get_cost(self.solution)
+            self.cost = self.graph.get_solution_cost(self.solution)
 
             if self.plot:
                 filename = "plots/lp_" + str(self.graph.number_vertices) + ".png"
