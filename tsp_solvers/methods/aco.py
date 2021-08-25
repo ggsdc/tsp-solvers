@@ -1,6 +1,7 @@
 """
 This file contains the main logic for the Ant Colony Optimization method
 """
+# TODO: study to implement part of the logic on C or C++ to speed up
 
 # Import from libraries
 import datetime

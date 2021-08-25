@@ -1,6 +1,8 @@
 """
 This file contains the main logic of the Genetic Algorithm method
 """
+# TODO: study to implement part of the logic on C or C++ to speed up
+# TODO: review convergence on algorithm as it always exists at 20% even with random initialization.
 
 # Import from libraries
 import datetime
