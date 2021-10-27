@@ -3,7 +3,7 @@ This class implements common methods for all solving methods
 """
 
 
-class BaseMethod:
+class BaseSolver:
     """ """
 
     def __init__(self):

@@ -11,7 +11,7 @@ import sys
 from itertools import accumulate
 
 # Import from internal modules
-from tsp_solvers.methods.base import BaseMethod
+from .base import BaseSolver
 
 
 class Ant:
@@ -86,7 +86,7 @@ class Ant:
         return self.cost
 
 
-class AntColonyOptimization(BaseMethod):
+class AntColonyOptimization(BaseSolver):
     def __init__(
         self,
         mode="AS",

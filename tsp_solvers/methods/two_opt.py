@@ -8,11 +8,11 @@ import datetime
 import sys
 
 # Import from internal modules
-from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
-from tsp_solvers.methods.base import BaseMethod
+from ..initializers import NearestNeighbor, RandomInitializer
+from .base import BaseSolver
 
 
-class TwoOpt(BaseMethod):
+class TwoOpt(BaseSolver):
     def __init__(self, graph, max_time, init="random", plot=False):
         super().__init__()
         self.graph = graph
