@@ -3,7 +3,6 @@ This file contains the main logic for the two opt heuristic
 """
 
 # Import from libraries
-import copy
 import datetime
 import sys
 
