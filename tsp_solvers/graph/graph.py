@@ -181,7 +181,7 @@ class Graph:
         pass
 
     def create_graph_from_schema(self, data):
-        aux_vertices = list(set([n[0] for n in data] + [n[1] for n in data]))
+        aux_vertices = list(set([d["n1"] for d in data] + [d["n2"] for d in data]))
         self.number_vertices = aux_vertices
         self.vertices = [
             Vertex({"idx": vertex, "x": 0, "y": 0}) for vertex in aux_vertices
@@ -190,9 +190,11 @@ class Graph:
         self.edges = [
             Edge({"origin": d["n1"], "destination": d["n2"], "cost": d["w"]})
             for d in data
+            if d["n1"] != d["n2"]
         ] + [
             Edge({"origin": d["n2"], "destination": d["n1"], "cost": d["w"]})
             for d in data
+            if d["n1"] != d["n2"]
         ]
 
         self.edges_collection = {
