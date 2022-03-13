@@ -183,7 +183,7 @@ class Graph:
 
     def create_graph_from_schema(self, data):
         aux_vertices = list(set([d["n1"] for d in data] + [d["n2"] for d in data]))
-        self.number_vertices = aux_vertices
+        self.number_vertices = len(aux_vertices)
         self.vertices = [
             Vertex({"idx": vertex, "x": 0, "y": 0}) for vertex in aux_vertices
         ]
