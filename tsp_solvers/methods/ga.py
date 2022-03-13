@@ -126,7 +126,7 @@ class GeneticAlgorithm(BaseSolver):
         self.individuals = [
             Individual(
                 genes=solution,
-                cost=self.graph.get_cost(solution),
+                cost=self.graph.get_solution_cost(solution),
                 idx=counter + self.id,
             )
             for counter, solution in enumerate(solutions)
@@ -198,7 +198,7 @@ class GeneticAlgorithm(BaseSolver):
 
             n = self._best_insertion(child, sub_solution)
             child.insert_sub_solution(sub_solution, n)
-            child.cost = self.graph.get_cost(child.genes)
+            child.cost = self.graph.get_solution_cost(child.genes)
             self.children.append(child)
 
     def _selection(self):
@@ -216,7 +216,9 @@ class GeneticAlgorithm(BaseSolver):
             prob = random.uniform(0, 1)
             if prob < self.mutation_probability:
                 self.children[i].mutate()
-                self.children[i].cost = self.graph.get_cost(self.children[i].genes)
+                self.children[i].cost = self.graph.get_solution_cost(
+                    self.children[i].genes
+                )
 
     def _substitution(self):
         """"""
