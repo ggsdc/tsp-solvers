@@ -33,7 +33,7 @@ class TwoOpt(BaseSolver):
             self.initializer = NearestNeighbor(self.graph, 1)
 
         self.solution = self.initializer.get_init()[0]
-        self.cost = self.graph.get_cost(self.solution)
+        self.cost = self.graph.get_solution_cost(self.solution)
 
     def get_best(self):
         print("\nTwo opt:")
@@ -77,7 +77,7 @@ class TwoOpt(BaseSolver):
                         part_3 = self.solution[j:end]
                         aux_solution = part_1 + part_2 + part_3
 
-                    aux_cost = self.graph.get_cost(aux_solution)
+                    aux_cost = self.graph.get_solution_cost(aux_solution)
 
                     if self.cost > aux_cost:
                         self.solution = aux_solution

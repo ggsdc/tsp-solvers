@@ -55,8 +55,12 @@ class Vertex:
         self.idx = data.get("idx")
         self.x = data.get("x")
         self.y = data.get("y")
+        self.degree = 0
         self._hash = self.__hash__()
         self.attributes_to_dict = ["idx", "x", "y"]
+
+    def is_odd(self):
+        return self.degree % 2 != 0
 
     def __hash__(self):
         return hash((self.idx, self.x, self.y))
@@ -97,17 +101,8 @@ class Graph:
         self.edges_collection = dict()
         self.vertices = list()
         self.vertices_collection = dict()
-
-    def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
-        edge = Edge({"origin": vertex_1, "destination": vertex_2})
-        if check:
-            for created_edge in self.edges:
-                if edge == created_edge:
-                    return False
-
-        edge.set_cost(cost)
-        self.edges_collection[(vertex_1.idx, vertex_2.idx)] = edge
-        self.edges.append(edge)
+        # Used in Christofides approach
+        self.components_groups = list()
 
     def calculate_cost(self, vertex_1, vertex_2):
 
@@ -123,6 +118,180 @@ class Graph:
         )
         return distance
 
+    def random_complete_graph(self, size):
+        self.number_vertices = size
+
+        for i in range(self.number_vertices):
+            new = True
+            while new:
+                temp = {
+                    "idx": i,
+                    "x": random.randint(0, self.number_vertices * 2),
+                    "y": random.randint(0, self.number_vertices * 2),
+                }
+                temp_vertex = Vertex(temp)
+                repeat = False
+                for vertex in self.vertices:
+                    if vertex == temp_vertex:
+                        repeat = True
+
+                if not repeat:
+                    new = False
+            self.vertices.append(temp_vertex)
+            self.vertices_collection[temp_vertex.idx] = temp_vertex
+
+        self._create_edges()
+
+    def create_graph_from_json(self, path: str):
+        # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
+        # TODO: add vertices_collection
+        with open(path) as f:
+            self.data = json.load(f)
+        self.number_vertices = len(self.data.get("vertices"))
+        self.vertices = [Vertex(vertex) for vertex in self.data.get("vertices")]
+
+        edges = self.data.get("edges", None)
+        if edges is None:
+            self._create_edges()
+
+        else:
+            # TODO: implement if the json has edges
+            pass
+
+    def create_graph_from_tsp(self, path: str):
+        with open(path) as f:
+            text = f.read()
+            _, nodes = text.split("NODE_COORD_SECTION")
+            nodes = nodes.split("\n")
+            nodes = nodes[1:-1]
+            nodes = [node.split(" ") for node in nodes]
+
+        self.number_vertices = len(nodes)
+
+        self.vertices = [
+            Vertex({"idx": int(node[0]), "x": float(node[1]), "y": float(node[2])})
+            for node in nodes
+        ]
+
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
+
+        self._create_edges()
+
+    def create_graph_from_db(self):
+        pass
+
+    def create_minimum_spanning_tree(self):
+        # With Boruvka algorithm - kind of
+        self._clean_edges()
+        completed = False
+        # First iteration
+        for vertex in self.vertices:
+            rest = {
+                other: self.calculate_cost(vertex, other)
+                for other in self.vertices
+                if other != vertex
+            }
+
+            nearest = min(rest, key=rest.get)
+
+            self.edges.append(
+                Edge(
+                    {
+                        "origin": vertex,
+                        "destination": nearest,
+                        "cost": rest[nearest],
+                    }
+                )
+            )
+            self.edges_collection[(vertex.idx, nearest.idx)] = self.edges[-1]
+
+        self._calculate_first_components()
+
+        if len(self.components_groups) == 1:
+            completed = True
+
+        while not completed:
+            # Function to check if we have only one component to exit loop
+
+            for group1 in self.components_groups:
+                rest = {}
+                for group2 in self.components_groups:
+                    if group1 != group2:
+                        for origin in group1:
+                            for destination in group2:
+                                rest[origin, destination] = self.calculate_cost(
+                                    origin, destination
+                                )
+
+                nearest = min(rest, key=rest.get)
+
+                self.edges.append(
+                    Edge(
+                        {
+                            "origin": nearest[0],
+                            "destination": nearest[1],
+                            "cost": rest[nearest],
+                        }
+                    )
+                )
+
+                self.edges_collection[(nearest[0].idx, nearest[1].idx)] = self.edges[-1]
+
+                break
+
+            self._update_components()
+
+            if len(self.components_groups) == 1:
+                completed = True
+                self.plot_edges()
+
+    def create_full_odd_graph(self):
+        self._calculate_vertices_degrees()
+        self._clean_edges()
+        self._subset_odd_vertices()
+        self._create_edges()
+
+    def create_minimum_weight_perfect_matching(self):
+        pass
+
+    def get_random_paths(self, number):
+        random_paths = []
+
+        for i in range(number):
+            random_list = random.sample(self.vertices, len(self.vertices))
+            random_paths.append(random_list)
+
+        return random_paths
+
+    def get_solution_cost(self, path):
+        total_cost = 0
+        for i in range(self.number_vertices - 1):
+            total_cost += self.edges_collection[(path[i].idx, path[i + 1].idx)].cost
+
+        total_cost += self.edges_collection[
+            (path[self.number_vertices - 1].idx, path[0].idx)
+        ].cost
+        return total_cost
+
+    def update_pheromone(self, edge, pheromone):
+        self.edges_collection[edge].pheromone = pheromone
+
+    def save_graph_to_json(self, path):
+        with open(path, "w") as f:
+            json.dump(
+                {
+                    "vertices": [
+                        {
+                            key: value
+                            for key, value in vertex.__dict__.items()
+                            if key in vertex.attributes_to_dict
+                        }
+                        for vertex in self.vertices
+                    ]
+                },
+                f,
+            )
+
     def plot(self):
         x_coord = [vertex.x for vertex in self.vertices]
         y_coord = [vertex.y for vertex in self.vertices]
@@ -132,6 +301,22 @@ class Graph:
             )
         plt.close()
         plt.scatter(x_coord, y_coord, c="#000000")
+        plt.show()
+
+    def plot_edges(self):
+        x_coord = [vertex.x for vertex in self.vertices]
+        y_coord = [vertex.y for vertex in self.vertices]
+        if "matplotlib" not in sys.modules:
+            raise ModuleNotFoundError(
+                "Matplotlib has to be installed to be able to plot!"
+            )
+        plt.close()
+        plt.scatter(x_coord, y_coord, c="#000000")
+
+        for i in self.edges:
+            x_values = [i.origin.x, i.destination.x]
+            y_values = [i.origin.y, i.destination.y]
+            plt.plot(x_values, y_values, c="#000000")
         plt.show()
 
     def plot_solution(self, path, pheromones=False, filename="none.png", title=""):
@@ -189,7 +374,7 @@ class Graph:
             self.vertices[0].x,
         ]
         y_values = [
-            self.vertices[self.number_vertices - 1].yº,
+            self.vertices[self.number_vertices - 1].y,
             self.vertices[0].y,
         ]
         plt.plot(x_values, y_values, c="#000000")
@@ -197,117 +382,91 @@ class Graph:
         plt.title(title)
         plt.savefig(filename)
 
-    def random_complete_graph(self, size):
-        self.number_vertices = size
+    def _add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
+        edge = Edge({"origin": vertex_1, "destination": vertex_2})
+        if check:
+            for created_edge in self.edges:
+                if edge == created_edge:
+                    return False
 
-        for i in range(self.number_vertices):
-            new = True
-            while new:
-                temp = {
-                    "idx": i,
-                    "x": random.randint(0, self.number_vertices * 2),
-                    "y": random.randint(0, self.number_vertices * 2),
-                }
-                temp_vertex = Vertex(temp)
-                repeat = False
-                for vertex in self.vertices:
-                    if vertex == temp_vertex:
-                        repeat = True
+        edge.set_cost(cost)
+        self.edges_collection[(vertex_1.idx, vertex_2.idx)] = edge
+        self.edges.append(edge)
 
-                if not repeat:
-                    new = False
-            self.vertices.append(temp_vertex)
-            self.vertices_collection[temp_vertex.idx] = temp_vertex
+    def _calculate_vertices_degrees(self):
+        # TODO: implement function that either calculates the degrees of all vertices or a given one
+        temp_count = {k: 0 for k in self.vertices}
+        counted = list()
+        for edge in self.edges:
+            if (edge.origin, edge.destination) in counted:
+                continue
+            temp_count[edge.origin] += 1
+            temp_count[edge.destination] += 1
+            counted.append((edge.destination, edge.origin))
 
-        for i in self.vertices:
-            for j in self.vertices:
-                if i < j:
-                    cost = self.calculate_cost(i, j)
-                    self.add_edge(i, j, cost)
-                    self.add_edge(j, i, cost)
+        for key, value in temp_count.items():
+            key.degree = value
 
-    def create_graph_from_json(self, path: str):
-        # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
-        with open(path) as f:
-            self.data = json.load(f)
-        self.number_vertices = len(self.data.get("vertices"))
-        self.vertices = [Vertex(vertex) for vertex in self.data.get("vertices")]
+    def _calculate_first_components(self):
+        # TODO: review as it is not working properly.
+        self.components_groups = list()
+        for edge in self.edges:
+            in_group = False
+            if not self.components_groups:
+                self.components_groups.append([edge.origin, edge.destination])
+                continue
 
-        edges = self.data.get("edges", None)
-        if edges is None:
-            for i in self.vertices:
-                for j in self.vertices:
-                    if i < j:
-                        cost = self.calculate_cost(i, j)
-                        self.add_edge(i, j, cost)
-                        self.add_edge(j, i, cost)
+            for component in self.components_groups:
 
-        else:
-            # TODO: implement if the json has edges
-            pass
+                if edge.origin in component or edge.destination in component:
 
-    def create_graph_from_db(self):
-        pass
+                    if edge.origin in component and edge.destination in component:
+                        in_group = True
+                        break
 
-    def create_graph_from_tsp(self, path: str):
-        with open(path) as f:
-            text = f.read()
-            _, nodes = text.split("NODE_COORD_SECTION")
-            nodes = nodes.split("\n")
-            nodes = nodes[1:-1]
-            nodes = [node.split(" ") for node in nodes]
+                    elif edge.origin in component:
+                        component.append(edge.destination)
+                        in_group = True
+                        break
 
-        self.number_vertices = len(nodes)
-        print(nodes)
+                    elif edge.destination in component:
+                        component.append(edge.origin)
+                        in_group = True
+                        break
 
-        self.vertices = [
-            Vertex({"idx": int(node[0]), "x": float(node[1]), "y": float(node[2])})
-            for node in nodes
+            if not in_group:
+                self.components_groups.append([edge.origin, edge.destination])
+
+    def _update_components(self):
+        origin = self.edges[-1].origin
+        destination = self.edges[-1].destination
+
+        origin_component = [c for c in self.components_groups if origin in c][0]
+        destination_component = [c for c in self.components_groups if destination in c][
+            0
         ]
 
+        self.components_groups.remove(origin_component)
+        self.components_groups.remove(destination_component)
+
+        final_component = list(origin_component) + list(
+            set(destination_component) - set(origin_component)
+        )
+
+        self.components_groups.append(final_component)
+
+    def _clean_edges(self):
+        self.edges = list()
+        self.edges_collection = dict()
+
+    def _subset_odd_vertices(self):
+        self.vertices = [vertex for vertex in self.vertices if vertex.is_odd()]
         self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
 
+    def _create_edges(self):
         for i in self.vertices:
             for j in self.vertices:
                 if i < j:
                     cost = self.calculate_cost(i, j)
-                    self.add_edge(i, j, cost)
-                    self.add_edge(j, i, cost)
-
-    def get_random_paths(self, size):
-        random_paths = []
-
-        for i in range(size):
-            random_list = random.sample(self.vertices, len(self.vertices))
-            random_paths.append(random_list)
-
-        return random_paths
-
-    def get_cost(self, path):
-        total_cost = 0
-        for i in range(self.number_vertices - 1):
-            total_cost += self.edges_collection[(path[i].idx, path[i + 1].idx)].cost
-
-        total_cost += self.edges_collection[
-            (path[self.number_vertices - 1].idx, path[0].idx)
-        ].cost
-        return total_cost
-
-    def update_pheromone(self, edge, pheromone):
-        self.edges_collection[edge].pheromone = pheromone
-
-    def save_graph_to_json(self, path):
-        with open(path, "w") as f:
-            json.dump(
-                {
-                    "vertices": [
-                        {
-                            key: value
-                            for key, value in vertex.__dict__.items()
-                            if key in vertex.attributes_to_dict
-                        }
-                        for vertex in self.vertices
-                    ]
-                },
-                f,
-            )
+                    self._add_edge(i, j, cost)
+                    self._add_edge(j, i, cost)

@@ -27,4 +27,4 @@ class SimulatedAnnealing:
             self.initializer = NearestNeighbor(self.graph, 1)
 
         self.solution = self.initializer.get_init()[0]
-        self.cost = self.graph.get_cost(self.solution)
+        self.cost = self.graph.get_solution_cost(self.solution)
