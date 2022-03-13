@@ -4,10 +4,10 @@
 
 import copy
 
-from tsp_solvers.methods.base import BaseMethod
+from .base import BaseSolver
 
 
-class Christofides(BaseMethod):
+class Christofides(BaseSolver):
     # Only works on symmetric and completed graphs
     def __init__(self, graph, verbose=0):
         super().__init__()
