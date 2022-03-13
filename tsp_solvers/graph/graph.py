@@ -180,6 +180,25 @@ class Graph:
     def create_graph_from_db(self):
         pass
 
+    def create_graph_from_schema(self, data):
+        aux_vertices = list(set([n[0] for n in data] + [n[1] for n in data]))
+        self.number_vertices = aux_vertices
+        self.vertices = [
+            Vertex({"idx": vertex, "x": 0, "y": 0}) for vertex in aux_vertices
+        ]
+
+        self.edges = [
+            Edge({"origin": d["n1"], "destination": d["n2"], "cost": d["w"]})
+            for d in data
+        ] + [
+            Edge({"origin": d["n2"], "destination": d["n1"], "cost": d["w"]})
+            for d in data
+        ]
+
+        self.edges_collection = {
+            (edge.origin.idx, edge.destination.idx): edge for edge in self.edges
+        }
+
     def create_minimum_spanning_tree(self):
         # With Boruvka algorithm - kind of
         self._clean_edges()
