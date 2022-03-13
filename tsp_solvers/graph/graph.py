@@ -149,6 +149,7 @@ class Graph:
             self.data = json.load(f)
         self.number_vertices = len(self.data.get("vertices"))
         self.vertices = [Vertex(vertex) for vertex in self.data.get("vertices")]
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
 
         edges = self.data.get("edges", None)
         if edges is None:
@@ -187,12 +188,26 @@ class Graph:
             Vertex({"idx": vertex, "x": 0, "y": 0}) for vertex in aux_vertices
         ]
 
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
+
         self.edges = [
-            Edge({"origin": d["n1"], "destination": d["n2"], "cost": d["w"]})
+            Edge(
+                {
+                    "origin": self.vertices_collection[d["n1"]],
+                    "destination": self.vertices_collection[d["n2"]],
+                    "cost": d["w"],
+                }
+            )
             for d in data
             if d["n1"] != d["n2"]
         ] + [
-            Edge({"origin": d["n2"], "destination": d["n1"], "cost": d["w"]})
+            Edge(
+                {
+                    "origin": self.vertices_collection[d["n2"]],
+                    "destination": self.vertices_collection[d["n1"]],
+                    "cost": d["w"],
+                }
+            )
             for d in data
             if d["n1"] != d["n2"]
         ]
