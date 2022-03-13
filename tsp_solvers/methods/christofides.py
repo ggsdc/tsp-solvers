@@ -32,7 +32,7 @@ class Christofides(BaseSolver):
 
     def _get_minimum_spanning_tree(self):
         self.MST = copy.deepcopy(self.graph)
-        self.MST.create_minimum_spanniing_tree()
+        self.MST.create_minimum_spanning_tree()
 
     def _get_odd_graph(self):
         self.odd_vertices = copy.deepcopy(self.MST)
