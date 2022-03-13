@@ -22,7 +22,7 @@ def main():
     ga.run()
     ga.get_best()
 
-    aco = AntColonyOptimization("AS", g, 400, 10, max_time=120, verbose=False)
+    aco = AntColonyOptimization("AS", g, 400, 10, max_time=120)
     aco.run()
     aco.get_best()
 
