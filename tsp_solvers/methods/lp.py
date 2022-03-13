@@ -1,17 +1,16 @@
 import datetime
-import sys
 
 from pulp import *
 
-from tsp_solvers.methods.base import BaseMethod
+from .base import BaseSolver
 
 
-class LinearIntegerProgram(BaseMethod):
+class LinearIntegerProgram(BaseSolver):
     def __init__(self, graph, max_time, plot=False):
         super().__init__()
         self.graph = graph
         self.model = LpProblem("TSP problem", LpMinimize)
-        self.vertices_list = self.graph.vertex_collection
+        self.vertices_list = self.graph.vertices
         self.v01Travels = None
         self.vOneTour = None
         self.temp_solution = list()
@@ -39,9 +38,8 @@ class LinearIntegerProgram(BaseMethod):
             cat="Binary",
         )
         self.vOneTour = LpVariable.dicts(
-            "Aux", (v.idx for v in self.graph.vertex_collection), cat="Integer"
+            "Aux", (v.idx for v in self.graph.vertices), cat="Integer"
         )
-        print(self.vOneTour)
 
         for v in self.vertices_list:
             self.model += (
@@ -72,8 +70,8 @@ class LinearIntegerProgram(BaseMethod):
                 self.model += self.vOneTour[i.idx] <= self.graph.number_vertices - 1
 
         self.model += lpSum(
-            self.v01Travels[edge[0], edge[1]] * self.graph.edges_dictionary[edge].cost
-            for edge in self.graph.edges_dictionary
+            self.v01Travels[edge[0], edge[1]] * self.graph.edges_collection[edge].cost
+            for edge in self.graph.edges_collection
         )
 
     def run(self):
@@ -109,9 +107,11 @@ class LinearIntegerProgram(BaseMethod):
 
             del self.solution[-1]
 
-            self.solution = [self.graph.vertex_dictionary[idx] for idx in self.solution]
+            self.solution = [
+                self.graph.vertices_collection[idx] for idx in self.solution
+            ]
 
-            self.cost = self.graph.get_cost(self.solution)
+            self.cost = self.graph.get_solution_cost(self.solution)
 
             if self.plot:
                 filename = "plots/lp_" + str(self.graph.number_vertices) + ".png"
