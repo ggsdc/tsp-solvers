@@ -189,7 +189,7 @@ class Graph:
             self.vertices[0].x,
         ]
         y_values = [
-            self.vertices[self.number_vertices - 1].yº,
+            self.vertices[self.number_vertices - 1].y,
             self.vertices[0].y,
         ]
         plt.plot(x_values, y_values, c="#000000")

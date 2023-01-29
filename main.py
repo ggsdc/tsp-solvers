@@ -10,18 +10,18 @@ def main():
         TwoOpt,
     )
 
-    random.seed(123)
+
     g = Graph()
     # g.create_graph_from_json("./data/100_vertex_random_graph.json")
     # g.create_graph_from_tsp("./data/dj38.tsp")
 
-    g.random_complete_graph(100)
+    g.random_complete_graph(10)
     # g.save_graph_to_json("./tsp_solvers/tests/data/10v.json")
-    ga = GeneticAlgorithm(g, 1000, 100, 0.2, 120, "nearest", verbose=True)
+    ga = GeneticAlgorithm(g, 1000, 100, 0.2, 120, "random", verbose=True)
     ga.run()
     ga.get_best()
 
-    aco = AntColonyOptimization("AS", g, 400, 10, max_time=120)
+    aco = AntColonyOptimization("AS", g, 400, 10, max_time=120, plot=True)
     aco.run()
     aco.get_best()
 
