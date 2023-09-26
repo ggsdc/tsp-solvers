@@ -5,13 +5,11 @@ from pulp import (
     LpMinimize,
     LpVariable,
     lpSum,
-    SCIP_CMD,
     value,
-    HiGHS_CMD,
-    HiGHS,
     PULP_CBC_CMD,
 )
 from pytups import SuperDict
+
 from tsp_solvers.methods.base import BaseSolver
 
 

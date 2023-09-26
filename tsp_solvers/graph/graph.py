@@ -10,7 +10,6 @@ import random
 import sys
 from functools import lru_cache
 from math import pow, sqrt
-import traceback
 
 # Matplotlib is not an required requirement
 try:
@@ -59,7 +58,6 @@ class Vertex:
         self._hash = hash((self.idx, self.x, self.y))
         self.attributes_to_dict = ["idx", "x", "y"]
         self.degree = 0
-
 
     def is_odd(self):
         return self.degree % 2 != 0
@@ -596,9 +594,7 @@ class Graph:
                 continue
 
             for component in self.components_groups:
-
                 if edge.origin in component or edge.destination in component:
-
                     if edge.origin in component and edge.destination in component:
                         in_group = True
                         break

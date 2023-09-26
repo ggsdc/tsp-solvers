@@ -2,6 +2,7 @@ import copy
 import datetime
 import random
 import sys
+
 from ..initializers import NearestNeighbor, RandomInitializer
 
 

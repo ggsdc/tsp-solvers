@@ -1,11 +1,9 @@
 """
 This file contains the main logic for the two opt heuristic
 """
-
 # Import from libraries
-import copy
-from datetime import datetime
 import sys
+from datetime import datetime
 from random import random
 
 # Import from internal modules
