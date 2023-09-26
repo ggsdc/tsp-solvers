@@ -3,10 +3,10 @@ import sys
 
 from pulp import *
 
-from tsp_solvers.methods.base import BaseMethod
+from tsp_solvers.methods.base import BaseSolver
 
 
-class LinearIntegerProgram(BaseMethod):
+class LinearIntegerProgram(BaseSolver):
     def __init__(self, graph, max_time, plot=False):
         super().__init__()
         self.graph = graph

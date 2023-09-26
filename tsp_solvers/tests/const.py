@@ -1,6 +1,15 @@
 """
 This file contains the solution of each method 
 """
+import os
+
+# Method to get the files
+path_to_tests_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_test_file(relative_path):
+    return os.path.join(path_to_tests_dir, relative_path)
+
 
 # For the 10 vertex problem
 GA_V10_COST = 54.557082002939914

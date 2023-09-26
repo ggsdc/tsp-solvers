@@ -3,10 +3,10 @@ from datetime import datetime
 from random import random
 
 from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
-from tsp_solvers.methods.base import BaseMethod
+from tsp_solvers.methods.base import BaseSolver
 
 
-class SimulatedAnnealingThreeOpt(BaseMethod):
+class SimulatedAnnealingThreeOpt(BaseSolver):
     def __init__(self, graph, max_time, init="random", plot=False):
         super().__init__()
         self.graph = graph

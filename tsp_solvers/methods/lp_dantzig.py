@@ -12,10 +12,10 @@ from pulp import (
     PULP_CBC_CMD,
 )
 from pytups import SuperDict
-from tsp_solvers.methods.base import BaseMethod
+from tsp_solvers.methods.base import BaseSolver
 
 
-class LinearIntegerDantzig(BaseMethod):
+class LinearIntegerDantzig(BaseSolver):
     def __init__(self, graph, max_time, plot=False):
         super().__init__()
         self.graph = graph

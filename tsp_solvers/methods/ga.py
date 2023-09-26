@@ -11,7 +11,7 @@ import sys
 
 # Import from internal modules
 from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
-from tsp_solvers.methods.base import BaseMethod
+from tsp_solvers.methods.base import BaseSolver
 
 
 class Individual:
@@ -80,7 +80,7 @@ class Individual:
         return str(self.genes)
 
 
-class GeneticAlgorithm(BaseMethod):
+class GeneticAlgorithm(BaseSolver):
     def __init__(
         self,
         graph,
