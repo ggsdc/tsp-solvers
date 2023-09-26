@@ -1,4 +1,5 @@
 from .aco import AntColonyOptimization
+from .christofides import Christofides
 from .ga import GeneticAlgorithm
 from .lp import LinearIntegerProgram
 from .pso import ParticleSwarmOptimization

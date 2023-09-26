@@ -7,8 +7,9 @@ from tsp_solvers import (
     SimulatedAnnealingTwoOpt,
     SimulatedAnnealingThreeOpt,
     LinearIntegerProgram,
+    Christofides,
 )
-from tsp_solvers.methods.dynamic_programming import DynamicProgramming
+
 from tsp_solvers.methods.lp_dantzig import LinearIntegerDantzig
 
 
@@ -57,6 +58,9 @@ def main():
     sa_th.run()
     sa_th.get_best()
 
+    c = Christofides(g)
+    c.run()
+
 
 if __name__ == "__main__":
     import cProfile
@@ -69,5 +73,5 @@ if __name__ == "__main__":
 
     stats = pstats.Stats(profiler)
     stats.sort_stats(pstats.SortKey.TIME)
-    # stats.print_stats()
+    stats.print_stats()
     stats.dump_stats(filename="times.prof")

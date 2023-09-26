@@ -5,6 +5,7 @@ from tsp_solvers.methods import (
     ParticleSwarmOptimization,
     SimulatedAnnealing,
     TwoOpt,
+    Christofides,
     ThreeOpt,
     SimulatedAnnealingTwoOpt,
     SimulatedAnnealingThreeOpt,

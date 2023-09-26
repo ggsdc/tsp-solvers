@@ -6,8 +6,8 @@ from tsp_solvers.tests.const import (
     GA_V100_COST,
     GA_V100_GENES,
 )
-from tsp_solvers.graph import Graph
-from tsp_solvers.methods import GeneticAlgorithm
+from tsp_solvers import Graph
+from tsp_solvers import GeneticAlgorithm
 
 # TODO: define tests for each method
 #  use random.seed to be able to get the same results every time.
