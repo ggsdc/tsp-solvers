@@ -4,3 +4,6 @@ from .lp import LinearIntegerProgram
 from .pso import ParticleSwarmOptimization
 from .sa import SimulatedAnnealing
 from .two_opt import TwoOpt
+from .three_opt import ThreeOpt
+from .two_opt_annealing import SimulatedAnnealingTwoOpt
+from .three_opt_annealing import SimulatedAnnealingThreeOpt
