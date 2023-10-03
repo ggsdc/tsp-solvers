@@ -62,7 +62,7 @@ class ParticleSwarmOptimization:
             )
             self.particles.append(particle)
 
-        self.size_population = len(self.particles)
+        self.population_size = len(self.particles)
 
     def get_best(self):
         best = self.particles[0]
@@ -76,7 +76,7 @@ class ParticleSwarmOptimization:
         print("\nSOLUTION:")
         print(
             "Particles: "
-            + str(self.size_population)
+            + str(self.population_size)
             + ". Iterations: "
             + str(self.iterations)
         )

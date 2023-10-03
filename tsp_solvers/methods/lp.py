@@ -37,7 +37,11 @@ class LinearIntegerProgram(BaseSolver):
             cat="Binary",
         )
         self.vOneTour = LpVariable.dicts(
-            "Aux", (v.idx for v in self.graph.vertices), cat="Integer"
+            "Aux",
+            (v.idx for v in self.graph.vertices),
+            cat="Integer",
+            lowBound=0,
+            upBound=self.graph.number_vertices - 1,
         )
 
         for v in self.vertices_list:
