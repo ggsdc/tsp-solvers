@@ -25,3 +25,7 @@ Currently there are other methods that are not yet completed or published, but a
 - Held-Karp algorithm.
 - Self-organizing maps (SOM).
 - Simulated annealing.
+
+The library also comes with a set of examples (in json format) having ten instances for problems with 10, 25, 50, 100, 150, 200 and 250 nodes.
+
+A future benchmark module will be available to compare properly all the different methods that are implemented in the library and get which methods are able to get the best solutions in the same time.
