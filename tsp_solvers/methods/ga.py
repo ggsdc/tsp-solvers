@@ -10,8 +10,8 @@ import random
 import sys
 
 # Import from internal modules
-from ..initializers import NearestNeighbor, RandomInitializer
-from .base import BaseSolver
+from tsp_solvers.initializers import NearestNeighbor, RandomInitializer
+from tsp_solvers.methods.base import BaseSolver
 
 
 class Individual:
@@ -122,6 +122,7 @@ class GeneticAlgorithm(BaseSolver):
             self.initializer = NearestNeighbor(self.graph, self.population_size)
 
         solutions = self.initializer.get_init()
+        self.generation = 0
 
         self.individuals = [
             Individual(
@@ -140,7 +141,17 @@ class GeneticAlgorithm(BaseSolver):
             if individual.cost < best.cost:
                 best = individual
         print("\nGA:")
-        print("Best solution: ", str(best.genes), "\t|\tcost: ", str(best.cost))
+        print(
+            f"Best solution: {best.cost} \t|\t Generation: {self.generation} "
+            f"\t|\t Time: {self.time}"
+        )
+
+    def get_solution_value(self):
+        best = self.individuals[0]
+        for individual in self.individuals:
+            if individual.cost < best.cost:
+                best = individual
+        return best.cost
 
     def _update_best(self):
         """"""
@@ -239,7 +250,7 @@ class GeneticAlgorithm(BaseSolver):
         costs = [i.cost for i in self.individuals]
         mean_cost = sum(costs) / len(costs)
         min_cost = min(costs)
-        if min_cost * 1.01 > mean_cost:
+        if min_cost * 1.1 > mean_cost:
             if self.verbose:
                 print("BREAK")
             return True
@@ -257,6 +268,7 @@ class GeneticAlgorithm(BaseSolver):
                 print("Iteration ", str(i), " of ", str(self.max_generations))
                 frac += 0.1
             # print("Generation: ", i + 1)
+            self.generation = i + 1
             self._selection()
             self._cross_over()
             self._mutation()

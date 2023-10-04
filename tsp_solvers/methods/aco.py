@@ -47,13 +47,16 @@ class Ant:
         #     pheromone.append(aux)
 
         pheromone = list(map(lambda x: math.pow(x, self.alpha), pheromone))
+        # pheromone = [math.pow(x, self.alpha) for x in pheromone]
 
         visibility = [
             self.graph.edges_collection[(self.solution[-1].idx, unvisited.idx)].cost
             for unvisited in self.unvisited_nodes
         ]
 
+        visibility = [v if v != 0 else 0.1 for v in visibility]
         visibility = list(map(lambda x: math.pow(1 / x, self.beta), visibility))
+        # visibility = [math.pow(1 / x, self.beta) for x in visibility]
 
         denominator = sum([x * y for x, y in zip(pheromone, visibility)])
         cumulative_probability = list(
@@ -100,6 +103,7 @@ class AntColonyOptimization(BaseSolver):
         initial_pheromone=1,
         max_time=60,
         plot=False,
+        verbose=False,
     ):
         super().__init__()
         self.mode = mode
@@ -115,6 +119,7 @@ class AntColonyOptimization(BaseSolver):
         self.number_vertices = self.graph.number_vertices
         self.max_time = max_time
         self.plot = plot
+        self.verbose = verbose
         if self.plot:
             if "matplotlib" not in sys.modules:
                 raise ModuleNotFoundError(
@@ -149,7 +154,17 @@ class AntColonyOptimization(BaseSolver):
             if ant.cost < best.cost:
                 best = ant
         print("\nACO:")
-        print("Best solution: ", str(best.solution), "\t|\tcost: ", str(best.cost))
+        print(
+            f"Best solution: {best.cost} \t|\t Iterations: {self.current_iteration} "
+            f"\t|\t Time: {self.time}"
+        )
+
+    def get_solution_value(self):
+        best = self.ants[0]
+        for ant in self.ants:
+            if ant.cost < best.cost:
+                best = ant
+        return best.cost
 
     def evaluate(self):
         costs = [i.cost for i in self.ants]
@@ -157,7 +172,6 @@ class AntColonyOptimization(BaseSolver):
         min_cost = min(costs)
 
         if min_cost * 1.01 > mean_cost:
-            print("BREAK")
             return True
         else:
             return False
@@ -167,7 +181,7 @@ class AntColonyOptimization(BaseSolver):
         initial_time = datetime.datetime.utcnow()
         for i in range(self.iterations):
             self.current_iteration = i
-            if i / self.iterations >= frac:
+            if i / self.iterations >= frac and self.verbose:
                 print("Iteration ", str(i), " of ", str(self.iterations))
                 frac += 0.1
 

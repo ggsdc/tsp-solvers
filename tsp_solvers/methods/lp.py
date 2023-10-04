@@ -2,14 +2,14 @@ import datetime
 
 from pulp import *
 
-from .base import BaseSolver
+from tsp_solvers.methods.base import BaseSolver
 
 
 class LinearIntegerProgram(BaseSolver):
     def __init__(self, graph, max_time, plot=False):
         super().__init__()
         self.graph = graph
-        self.model = LpProblem("TSP problem", LpMinimize)
+        self.model = LpProblem("TSP problem (MTZ)", LpMinimize)
         self.vertices_list = self.graph.vertices
         self.v01Travels = None
         self.vOneTour = None
@@ -26,7 +26,6 @@ class LinearIntegerProgram(BaseSolver):
                 )
 
     def build_model(self):
-
         self.v01Travels = LpVariable.dicts(
             "Travel",
             (
@@ -38,7 +37,11 @@ class LinearIntegerProgram(BaseSolver):
             cat="Binary",
         )
         self.vOneTour = LpVariable.dicts(
-            "Aux", (v.idx for v in self.graph.vertices), cat="Integer"
+            "Aux",
+            (v.idx for v in self.graph.vertices),
+            cat="Integer",
+            lowBound=0,
+            upBound=self.graph.number_vertices - 1,
         )
 
         for v in self.vertices_list:
@@ -77,10 +80,11 @@ class LinearIntegerProgram(BaseSolver):
     def run(self):
         start = datetime.datetime.utcnow()
 
-        self.model.solve(PULP_CBC_CMD(msg=True, gapRel=0.05, timeLimit=self.max_time))
+        self.model.writeMPS("mtz.mps")
 
-        print(self.model.status)
-        if self.model.status == 1:
+        self.model.solve(HiGHS(msg=False, timeLimit=self.max_time, mip=True))
+
+        if self.model.status == 0:
             self.solution = list()
             self.temp_solution = list()
             for v in self.model.variables():
@@ -111,7 +115,7 @@ class LinearIntegerProgram(BaseSolver):
                 self.graph.vertices_collection[idx] for idx in self.solution
             ]
 
-            self.cost = self.graph.get_solution_cost(self.solution)
+            self.cost = self.graph.get_cost(self.solution)
 
             if self.plot:
                 filename = "plots/lp_" + str(self.graph.number_vertices) + ".png"
@@ -129,9 +133,15 @@ class LinearIntegerProgram(BaseSolver):
 
         self.time = datetime.datetime.utcnow() - start
 
-    def show(self):
+    def get_best(self):
         print("\nLinear programming formulation:")
-        print("Best solution: " + str(self.solution) + "\t|\tcost: " + str(self.cost))
+        print(f"Best solution: {self.cost} \t|\t Time: {self.time}")
+
+    def get_solution_value(self):
+        return self.cost
+
+    def get_solution_time(self):
+        return self.time
 
     def save(self, file):
         text = (

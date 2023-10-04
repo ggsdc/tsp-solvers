@@ -2,7 +2,7 @@ import random
 
 
 class NearestNeighbor:
-    def __init__(self, graph, population):
+    def __init__(self, graph, population: int = 1):
         self.graph = graph
         self.population = population
 

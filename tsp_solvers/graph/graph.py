@@ -8,8 +8,8 @@ This graph is constructed from nodes and edges
 import json
 import random
 import sys
+from functools import lru_cache
 from math import pow, sqrt
-import traceback
 
 # Matplotlib is not an required requirement
 try:
@@ -55,15 +55,15 @@ class Vertex:
         self.idx = data.get("idx")
         self.x = data.get("x")
         self.y = data.get("y")
-        self.degree = 0
-        self._hash = self.__hash__()
+        self._hash = hash((self.idx, self.x, self.y))
         self.attributes_to_dict = ["idx", "x", "y"]
+        self.degree = 0
 
     def is_odd(self):
         return self.degree % 2 != 0
 
     def __hash__(self):
-        return hash((self.idx, self.x, self.y))
+        return self._hash
 
     def __eq__(self, other):
         if isinstance(other, Vertex):
@@ -101,11 +101,21 @@ class Graph:
         self.edges_collection = dict()
         self.vertices = list()
         self.vertices_collection = dict()
-        # Used in Christofides approach
-        self.components_groups = list()
 
-    def calculate_cost(self, vertex_1, vertex_2):
+    def add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
+        edge = Edge({"origin": vertex_1, "destination": vertex_2})
+        if check:
+            for created_edge in self.edges:
+                if edge == created_edge:
+                    return False
 
+        edge.set_cost(cost)
+        self.edges_collection[(vertex_1.idx, vertex_2.idx)] = edge
+        self.edges.append(edge)
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def calculate_cost(vertex_1, vertex_2):
         distance = sqrt(
             pow(
                 vertex_1.x - vertex_2.x,
@@ -362,61 +372,192 @@ class Graph:
             )
         plt.close()
 
-        # if pheromones:
-        #     min_pheromone = 100
-        #     max_pheromone = 0
-        #     for i in self.edges:
-        #         if min_pheromone > self.edges[i].pheromone:
-        #             min_pheromone = self.edges[i].pheromone
-        #
-        #         if max_pheromone < self.edges[i].pheromone:
-        #             max_pheromone = self.edges[i].pheromone
-        #
-        #     pheromone_dict = {
-        #         key: 0.0
-        #         + (self.edges[key].pheromone - min_pheromone)
-        #         * 0.4
-        #         / (max_pheromone - min_pheromone)
-        #         for key in self.edges
-        #     }
-        #
-        #     for i in pheromone_dict:
-        #         x_values = [
-        #             self.vertices_coordinates[i[0]][0],
-        #             self.vertices_coordinates[i[1]][0],
-        #         ]
-        #         y_values = [
-        #             self.vertices_coordinates[i[0]][1],
-        #             self.vertices_coordinates[i[1]][1],
-        #         ]
-        #         plt.plot(
-        #             x_values,
-        #             y_values,
-        #             c="#FF0000",
-        #             alpha=pheromone_dict[i],
-        #             linewidth=3,
-        #         )
+        if pheromones:
+            min_pheromone = 100
+            max_pheromone = 0
+            for index, edge in enumerate(self.edges):
+                if min_pheromone > edge.pheromone:
+                    min_pheromone = edge.pheromone
+
+                if max_pheromone < edge.pheromone:
+                    max_pheromone = edge.pheromone
+
+            pheromone_dict = {
+                index: 0.0
+                + (edge.pheromone - min_pheromone)
+                * 0.4
+                / (max_pheromone - min_pheromone)
+                for index, edge in enumerate(self.edges)
+            }
+
+            for i in pheromone_dict:
+                x_values = [
+                    self.edges[i].origin.x,
+                    self.edges[i].destination.x,
+                ]
+                y_values = [
+                    self.edges[i].origin.y,
+                    self.edges[i].destination.y,
+                ]
+                plt.plot(
+                    x_values,
+                    y_values,
+                    c="#FF0000",
+                    alpha=pheromone_dict[i],
+                    linewidth=3,
+                )
 
         x_coord = [vertex.x for vertex in self.vertices]
         y_coord = [vertex.y for vertex in self.vertices]
         plt.scatter(x_coord, y_coord, c="#000000")
         for i in range(self.number_vertices - 1):
-            x_values = [self.vertices[i].x, self.vertices[i + 1].x]
-            y_values = [self.vertices[i].y, self.vertices[i + 1].y]
+            x_values = [path[i].x, path[i + 1].x]
+            y_values = [path[i].y, path[i + 1].y]
             plt.plot(x_values, y_values, c="#000000")
 
         x_values = [
-            self.vertices[self.number_vertices - 1].x,
-            self.vertices[0].x,
+            path[self.number_vertices - 1].x,
+            path[0].x,
         ]
         y_values = [
-            self.vertices[self.number_vertices - 1].y,
-            self.vertices[0].y,
+            path[self.number_vertices - 1].y,
+            path[0].y,
         ]
         plt.plot(x_values, y_values, c="#000000")
 
         plt.title(title)
         plt.savefig(filename)
+
+    def random_complete_graph(self, size):
+        self.number_vertices = size
+
+        for i in range(self.number_vertices):
+            new = True
+            while new:
+                temp = {
+                    "idx": i,
+                    "x": random.randint(0, self.number_vertices * 2),
+                    "y": random.randint(0, self.number_vertices * 2),
+                }
+                temp_vertex = Vertex(temp)
+                repeat = False
+                for vertex in self.vertices:
+                    if vertex == temp_vertex:
+                        repeat = True
+
+                if not repeat:
+                    new = False
+            self.vertices.append(temp_vertex)
+            self.vertices_collection[temp_vertex.idx] = temp_vertex
+
+        for i in self.vertices:
+            for j in self.vertices:
+                if i < j:
+                    cost = self.calculate_cost(i, j)
+                    self.add_edge(i, j, cost)
+                    self.add_edge(j, i, cost)
+
+    def create_graph_from_json(self, path: str):
+        # TODO: add json schema validation here of kwargs so if data is passed no need to execute another method
+        with open(path) as f:
+            self.data = json.load(f)
+        self.number_vertices = len(self.data.get("vertices"))
+        self.vertices = [Vertex(vertex) for vertex in self.data.get("vertices")]
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
+
+        edges = self.data.get("edges", None)
+        if edges is None:
+            for i in self.vertices:
+                for j in self.vertices:
+                    if i < j:
+                        cost = self.calculate_cost(i, j)
+                        self.add_edge(i, j, cost)
+                        self.add_edge(j, i, cost)
+
+        else:
+            # TODO: implement if the json has edges
+            pass
+
+    def create_graph_from_db(self):
+        pass
+
+    def create_graph_from_tsp(self, path: str):
+        with open(path) as f:
+            text = f.read()
+            _, nodes = text.split("NODE_COORD_SECTION")
+            nodes = nodes.split("\n")
+            nodes = nodes[1:-1]
+            nodes = [node.split(" ") for node in nodes]
+
+        self.number_vertices = len(nodes)
+        print(nodes)
+
+        self.vertices = [
+            Vertex({"idx": int(node[0]), "x": float(node[1]), "y": float(node[2])})
+            for node in nodes
+        ]
+
+        self.vertices_collection = {vertex.idx: vertex for vertex in self.vertices}
+
+        for i in self.vertices:
+            for j in self.vertices:
+                if i < j:
+                    cost = self.calculate_cost(i, j)
+                    self.add_edge(i, j, cost)
+                    self.add_edge(j, i, cost)
+
+    def get_random_paths(self, size):
+        random_paths = []
+
+        for i in range(size):
+            random_list = random.sample(self.vertices, len(self.vertices))
+            random_paths.append(random_list)
+
+        return random_paths
+
+    def get_cost(self, path):
+        total_cost = 0
+        for i in range(self.number_vertices - 1):
+            total_cost += self.edges_collection[(path[i].idx, path[i + 1].idx)].cost
+
+        total_cost += self.edges_collection[
+            (path[self.number_vertices - 1].idx, path[0].idx)
+        ].cost
+        return total_cost
+
+    def update_pheromone(self, edge, pheromone):
+        self.edges_collection[edge].pheromone = pheromone
+
+    def save_graph_to_json(self, path):
+        with open(path, "w") as f:
+            json.dump(
+                {
+                    "vertices": [
+                        {
+                            key: value
+                            for key, value in vertex.__dict__.items()
+                            if key in vertex.attributes_to_dict
+                        }
+                        for vertex in self.vertices
+                    ]
+                },
+                f,
+            )
+
+    def get_edge_cost(self, i, j):
+        try:
+            return self.edges_collection[(i, j)].cost
+        except KeyError:
+            return 0
+
+    def get_distance_matrix(self):
+        distance_matrix = []
+        for i in self.vertices:
+            row = []
+            for j in self.vertices:
+                row.append(self.get_edge_cost(i.idx, j.idx))
+            distance_matrix.append(row)
+        return distance_matrix
 
     def _add_edge(self, vertex_1, vertex_2, cost=0.0, check=False):
         edge = Edge({"origin": vertex_1, "destination": vertex_2})
@@ -453,9 +594,7 @@ class Graph:
                 continue
 
             for component in self.components_groups:
-
                 if edge.origin in component or edge.destination in component:
-
                     if edge.origin in component and edge.destination in component:
                         in_group = True
                         break

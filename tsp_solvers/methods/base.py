@@ -9,6 +9,7 @@ class BaseSolver:
     def __init__(self):
         """ """
         self.time = None
+        self.cost = 0
 
     def get_time(self):
         """ """
@@ -27,3 +28,9 @@ class BaseSolver:
         Has to be implemented in subclass
         """
         raise NotImplemented
+
+    def get_solution_value(self):
+        return self.cost
+
+    def get_solution_time(self):
+        return self.time

@@ -1,5 +1,2 @@
-amply>=0.1.4
-docutils>=0.17.1
-PuLP
-pyparsing>=2.4.7
-six>=1.16.0
+pulp @ git+https://github.com/coin-or/pulp@master
+pytups==0.86.2
