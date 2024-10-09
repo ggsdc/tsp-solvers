@@ -13,12 +13,13 @@ from tsp_solvers import (
 from tsp_solvers.methods.dynamic_programming import DynamicProgramming
 
 from tsp_solvers.methods.lp_dantzig import LinearIntegerDantzig
+from tsp_solvers.methods.lp_dantzig_lazy import LinearIntegerDantzigLazy
 
 
 def main():
     nodes = 25
     g = Graph()
-    g.create_graph_from_json("./tsp_solvers/data/25v_2.json")
+    g.create_graph_from_json("./tsp_solvers/data/25v_3.json")
     # g.create_graph_from_tsp("./data/dj38.tsp")
     # g.random_complete_graph(nodes)
     # g.save_graph_to_json("./tsp_solvers/tests/data/10v.json")
@@ -34,15 +35,20 @@ def main():
     # aco.run()
     # aco.get_best()
     #
-    # lp = LinearIntegerDantzig(g, 120, plot=False)
-    # lp.build_model()
-    # lp.run()
-    # lp.get_best()
+    lp = LinearIntegerDantzig(g, 120, plot=False)
+    lp.build_model()
+    lp.run()
+    lp.get_best()
 
-    lp_1 = LinearIntegerProgram(g, 120, plot=True)
-    lp_1.build_model()
-    lp_1.run()
-    lp_1.get_best()
+    lp = LinearIntegerDantzigLazy(g, 600, plot=False)
+    lp.build_model()
+    lp.run()
+    lp.get_best()
+
+    # lp_1 = LinearIntegerProgram(g, 120, plot=True)
+    # lp_1.build_model()
+    # lp_1.run()
+    # lp_1.get_best()
     #
     # tw = TwoOpt(g, 120, "random", plot=True)
     # tw.run()

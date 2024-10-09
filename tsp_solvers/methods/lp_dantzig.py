@@ -6,7 +6,7 @@ from pulp import (
     LpVariable,
     lpSum,
     value,
-    PULP_CBC_CMD,
+    GUROBI,
 )
 from pytups import SuperDict
 
@@ -56,12 +56,17 @@ class LinearIntegerDantzig(BaseSolver):
             )
 
     def run(self):
-        count = 0
         start_time = datetime.utcnow()
         while (datetime.utcnow() - start_time).seconds <= self.max_time:
             received_status = self.model.solve(
-                PULP_CBC_CMD(msg=False, timeLimit=self.max_time, mip=True)
+                GUROBI(
+                    msg=True,
+                    timeLimit=self.max_time,
+                    mip=True,
+                    # callback=self.gurobi_callback,
+                )
             )
+
             if self.model.status == 1:
                 travels = self.travel.vfilter(lambda v: value(v)).keys_tl()
                 subtours = self.find_subtours(travels)
@@ -86,7 +91,7 @@ class LinearIntegerDantzig(BaseSolver):
                     ]
                     self.cost = self.graph.get_cost(self.solution)
                     self.time = datetime.utcnow() - start_time
-                    self.model.writeMPS("dfj.mps")
+                    # self.model.writeMPS("dfj.mps")
                     break
             else:
                 self.cost = float("-inf")
